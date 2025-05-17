@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 
 
 library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.0.1 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.1.0 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
