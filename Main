@@ -176,6 +176,24 @@ local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(val)
     print("Set player speed:" .. val)
 end)
+local Textbox1 = Tab2:NewTextbox("Dupe items", "", "1", "all", "small", true, false, function(val)
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local inventoryFolder = workspace:WaitForChild("Inventories"):WaitForChild(localPlayer.Name):WaitForChild("Items")
+    local firstItem = inventoryFolder:GetChildren()[val]
+    if not firstItem then
+        warn("No items found in inventory.")
+        return
+    end
+    local itemName = firstItem.Name
+    for _, item in ipairs(inventoryFolder:GetChildren()) do
+        if item.Name == itemName then
+            local clone = item:Clone()
+            clone.Parent = inventoryFolder
+    end
+end
+
+end)
 
 local Selector1 = Tab1:NewSelector(
     "Inventory viewer",
