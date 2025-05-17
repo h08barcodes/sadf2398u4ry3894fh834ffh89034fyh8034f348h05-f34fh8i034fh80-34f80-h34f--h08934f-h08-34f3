@@ -438,12 +438,44 @@ local Button5 = Tab1:NewButton("Refresh script", function()
 end)
 
 
+local Toggle1 = Tab2:NewToggle("Tp and back (requires hookmetamethod)", false, function(value)
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local teleportActive = value
 
+    -- Run the loop only if toggle is ON
+    if teleportActive then
+        coroutine.wrap(function()
+            while teleportActive do
+                -- Refresh teleportActive inside loop in case toggle was switched off
+                teleportActive = Toggle1.Value  -- assuming Toggle1 has a .Value property for current toggle state
+                if not teleportActive then break end
 
+                local others = {}
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        table.insert(others, player)
+                    end
+                end
 
+                if #others > 0 then
+                    local randomPlayer = others[math.random(1, #others)]
+                    local targetHRP = randomPlayer.Character.HumanoidRootPart
+                    local originalHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
 
+                    if originalHRP then
+                        local originalPos = originalHRP.CFrame
+                        originalHRP.CFrame = targetHRP.CFrame
+                        wait(0.5)
+                        originalHRP.CFrame = originalPos
+                    end
+                end
 
-
+                wait(2)
+            end
+        end)()
+    end
+end)
 
 
 local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
