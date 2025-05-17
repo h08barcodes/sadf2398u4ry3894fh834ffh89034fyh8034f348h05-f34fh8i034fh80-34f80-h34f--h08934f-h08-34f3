@@ -29,7 +29,23 @@ local function getPlayerNames()
     return playerNames
 end
 
+local function simulateFRTKeys()
+    -- Simulate pressing F
+    print("F key logic executed")
+    -- Add real F key behavior here
 
+    wait(0.01)
+
+    -- Simulate pressing R
+    print("R key logic executed")
+    -- Add real R key behavior here
+
+    wait(0.01)
+
+    -- Simulate pressing T
+    print("T key logic executed")
+    -- Add real T key behavior here
+end
 
 library:Introduction()
 
@@ -220,7 +236,8 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     break
                 end
 
-                wait(0.05)
+                wait(0.1)
+                simulateFRTKeys()
             end
         end)
 
