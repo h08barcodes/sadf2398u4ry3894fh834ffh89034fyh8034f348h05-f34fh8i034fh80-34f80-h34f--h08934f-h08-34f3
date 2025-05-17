@@ -598,6 +598,29 @@ local Toggle1 = Tab2:NewToggle("Tp and back random player", false, function(valu
 end)
 
 
+-- New Teleports Tab
+local Tab4 = Init:NewTab("Teleports")
+local SectionTele = Tab4:NewSection("Teleport Locations")
+
+local teleportLocations = {
+    "spawn",
+    "goblin ruins",
+    "ashen wastes",
+    "elemental caverns",
+    "blighted ruins (boss)"
+}
+
+for i, label in ipairs(teleportLocations) do
+    Tab4:NewButton(label, function()
+        local args = { "Layer" .. tostring(i - 1) }
+        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
+    end)
+end
+
+
+
+
+
 local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
 
 -- // FUNCTION DOCS: 
