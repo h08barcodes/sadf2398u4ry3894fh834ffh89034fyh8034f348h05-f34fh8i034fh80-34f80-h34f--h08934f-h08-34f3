@@ -85,20 +85,24 @@ local Tab4 = Init:NewTab("Teleports")
 local SectionTele = Tab4:NewSection("Teleport Locations")
 
 local teleportLocations = {
-    "spawn",
-    "goblin ruins",
-    "ashen wastes",
-    "elemental caverns",
-    "blighted ruins (boss)"
+    "Spawn", 
+    "Goblin ruins", 
+    "Ashen wastes", 
+    "Elemental caverns", 
+    "Blighted ruins (boss)" 
 }
 
 for i, label in ipairs(teleportLocations) do
     Tab4:NewButton(label, function()
-        local args = { "Layer" .. tostring(i - 1) }
+        local args
+        if i == 5 then
+            args = { "Boss" }
+        else
+            args = { "Layer" .. tostring(i - 1) }
+        end
         game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
     end)
 end
-
 local tab4 = Init:NewTab("Credits")
 
 local Section1 = Tab1:NewSection("Yo whats up bro")
