@@ -82,14 +82,14 @@ local Tab1 = Init:NewTab("Main")
 local Tab2 = Init:NewTab("Fun stuff")
 -- New Teleports Tab
 local Tab3 = Init:NewTab("Teleports")
-local SectionTele = Tab3:NewSection("Teleport Locations --- Ashen Cliffs")
+local SectionTele = Tab3:NewSection("Teleport Locations")
 
 local teleportLocations = {
-    "Spawn",
-    "Goblin ruins",
-    "Ashen wastes",
-    "Elemental caverns",
-    "Blighted ruins (boss)"
+    "spawn",
+    "goblin ruins",
+    "ashen wastes",
+    "elemental caverns",
+    "blighted ruins (boss)"
 }
 
 for i, label in ipairs(teleportLocations) do
@@ -579,6 +579,50 @@ Players.PlayerRemoving:Connect(updateSelector)
 local Button5 = Tab1:NewButton("Refresh script", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main"))()
 end)
+
+
+local Toggle1 = Tab2:NewToggle("Tp and back random player", false, function(value)
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local teleportActive = value
+
+    -- Run the loop only if toggle is ON
+    if teleportActive then
+        coroutine.wrap(function()
+            while teleportActive do
+                -- Refresh teleportActive inside loop in case toggle was switched off
+                teleportActive = Toggle1.Value  -- assuming Toggle1 has a .Value property for current toggle state
+                if not teleportActive then break end
+
+                local others = {}
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        table.insert(others, player)
+                    end
+                end
+
+                if #others > 0 then
+                    local randomPlayer = others[math.random(1, #others)]
+                    local targetHRP = randomPlayer.Character.HumanoidRootPart
+                    local originalHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+                    if originalHRP then
+                        local originalPos = originalHRP.CFrame
+                        originalHRP.CFrame = targetHRP.CFrame
+                        wait(0.5)
+                        originalHRP.CFrame = originalPos
+                    end
+                end
+
+                wait(2)
+            end
+        end)()
+    end
+end)
+
+
+
+
 
 
 local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
