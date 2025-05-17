@@ -221,6 +221,20 @@ local workspace = game:GetService("Workspace")
 local teleportActive = false
 local teleportCoroutine
 
+local function simulateFRTKeys()
+    local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
+    local vector = Vector3
+
+    SpellEvent:FireServer("Spell1", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell2", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell3", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
+end
+
+-- Toggle logic
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     teleportActive = value
 
@@ -230,6 +244,8 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         end
 
         teleportCoroutine = coroutine.create(function()
+            local lastTeleportTime = tick()
+
             while teleportActive do
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:FindFirstChild("HumanoidRootPart")
@@ -237,7 +253,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
 
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
 
-                -- Collect valid enemies
+                -- Gather valid enemies
                 local validEnemies = {}
                 for _, obj in pairs(enemyFolder:GetDescendants()) do
                     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
@@ -256,11 +272,13 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     local nearestEnemyHRP = validEnemies[1]
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
                     simulateFRTKeys()
-                else
-                    -- Run Layer3 teleport if no enemies found
+                end
+
+                -- Check if 5 minutes (300 seconds) have passed
+                if tick() - lastTeleportTime >= 300 then
                     local args = { "Layer3" }
                     ReplicatedStorage:WaitForChild("Teleport"):FireServer(unpack(args))
-                    wait(2) -- optional: wait before rechecking
+                    lastTeleportTime = tick()
                 end
 
                 wait(0.1)
