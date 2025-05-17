@@ -29,22 +29,50 @@ local function getPlayerNames()
     return playerNames
 end
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
+
+local vector = Vector3  -- Just an alias to keep it similar to your original format
+
 local function simulateFRTKeys()
-    -- Simulate pressing F
-    print("F key logic executed")
-    -- Add real F key behavior here
+    -- Fire Spell1
+    local args1 = {
+        "Spell1",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args1))
+    wait(0.1)
 
-    wait(0.01)
+    -- Fire Spell2
+    local args2 = {
+        "Spell2",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args2))
+    wait(0.1)
 
-    -- Simulate pressing R
-    print("R key logic executed")
-    -- Add real R key behavior here
+    -- Fire Spell3
+    local args3 = {
+        "Spell3",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args3))
+    wait(0.1)
 
-    wait(0.01)
-
-    -- Simulate pressing T
-    print("T key logic executed")
-    -- Add real T key behavior here
+    -- Fire Spell4
+    local args4 = {
+        "Spell4",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args4))
 end
 
 library:Introduction()
