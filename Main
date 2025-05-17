@@ -80,14 +80,34 @@ local Init = library:Init()
 
 local Tab1 = Init:NewTab("Main")
 local Tab2 = Init:NewTab("Fun stuff")
-local Tab3 = Init:NewTab("Credits")
+-- New Teleports Tab
+local Tab4 = Init:NewTab("Teleports")
+local SectionTele = Tab4:NewSection("Teleport Locations")
+
+local teleportLocations = {
+    "spawn",
+    "goblin ruins",
+    "ashen wastes",
+    "elemental caverns",
+    "blighted ruins (boss)"
+}
+
+for i, label in ipairs(teleportLocations) do
+    Tab4:NewButton(label, function()
+        local args = { "Layer" .. tostring(i - 1) }
+        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
+    end)
+end
+
+local tab4 = Init:NewTab("Credits")
 
 local Section1 = Tab1:NewSection("Yo whats up bro")
 local Section1 = Tab2:NewSection("Fun stuff")
-local Section1 = Tab3:NewSection("Credits")
+local Section1 = tab4:NewSection("Credits")
 local Label1 = Tab1:NewLabel("Main scripts:", "center")--"left", "center", "right"
-local Label1 = Tab3:NewSection("@errorgeorge on discord, very sigma ik")
-local Label2 = Tab3:NewSection("Calm down ladies")
+
+local Label1 = tab4:NewSection("@errorgeorge on discord, very sigma ik")
+local Label2 = tab4:NewSection("Calm down ladies")
 
 -- Buttons
 local Button1 = Tab1:NewButton("Anger all mobs", function()
@@ -598,24 +618,6 @@ local Toggle1 = Tab2:NewToggle("Tp and back random player", false, function(valu
 end)
 
 
--- New Teleports Tab
-local Tab4 = Init:NewTab("Teleports")
-local SectionTele = Tab4:NewSection("Teleport Locations")
-
-local teleportLocations = {
-    "spawn",
-    "goblin ruins",
-    "ashen wastes",
-    "elemental caverns",
-    "blighted ruins (boss)"
-}
-
-for i, label in ipairs(teleportLocations) do
-    Tab4:NewButton(label, function()
-        local args = { "Layer" .. tostring(i - 1) }
-        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-    end)
-end
 
 
 
