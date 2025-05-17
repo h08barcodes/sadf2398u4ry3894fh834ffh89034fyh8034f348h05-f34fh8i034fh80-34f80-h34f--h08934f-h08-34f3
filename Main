@@ -80,17 +80,14 @@ local Init = library:Init()
 
 local Tab1 = Init:NewTab("Main")
 local Tab2 = Init:NewTab("Fun stuff")
-local Tab3 = Init:NewTab("Teleports")
-local tab4 = Init:NewTab("Credits")
+local Tab3 = Init:NewTab("Credits")
 
 local Section1 = Tab1:NewSection("Yo whats up bro")
 local Section1 = Tab2:NewSection("Fun stuff")
-local Section1 = tab4:NewSection("Credits")
+local Section1 = Tab3:NewSection("Credits")
 local Label1 = Tab1:NewLabel("Main scripts:", "center")--"left", "center", "right"
-local Label1 = tab3:NewSection("Legit teleports --- Ashen cliffs")
-local Label1 = tab4:NewSection("@errorgeorge on discord, very sigma ik")
-local Label2 = tab4:NewSection("Calm down ladies")
-
+local Label1 = Tab3:NewSection("@errorgeorge on discord, very sigma ik")
+local Label2 = Tab3:NewSection("Calm down ladies")
 
 -- Buttons
 local Button1 = Tab1:NewButton("Anger all mobs", function()
@@ -170,46 +167,9 @@ local Button3 = Tab1:NewButton("Rejoin", function()
     end
 end)
 
-local Button4 = Tab1:NewButton("Spawn", function()
+local Button4 = Tab1:NewButton("Infinite yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
 end)
-
-local Button1 = Tab3:NewButton("Spawn", function()
-    local args = {
-	"Layer0"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-end)
-
-local Button2 = Tab3:NewButton("Goblin ruins", function()
-    local args = {
-	"Layer1"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-end)
-
-local Button3 = Tab3:NewButton("Ashen wastes", function()
-    local args = {
-	"Layer2"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-end)
-
-local Button4 = Tab3:NewButton("Elemental caverns", function()
-    local args = {
-	"Layer3"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-end)
-
-local Button5 = Tab3:NewButton("Blighted ruins (boss)", function()
-    local args = {
-	"Layer4"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-end)
-
-
 -- Toggles
 local Toggle1 = Tab1:NewToggle("Damage Blocker (requires hookmetamethod)", false, function(value)
     damageBlockerToggle = value
