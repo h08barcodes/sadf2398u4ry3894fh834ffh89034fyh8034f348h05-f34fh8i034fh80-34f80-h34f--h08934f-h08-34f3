@@ -6,7 +6,7 @@ local CoreGui = game:GetService("CoreGui")
 local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
-local selectedPlayer = ""
+selectedPlayer = ""
 
 
 library.rank = "developer"
