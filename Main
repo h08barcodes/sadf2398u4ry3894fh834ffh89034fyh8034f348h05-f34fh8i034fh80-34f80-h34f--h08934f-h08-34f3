@@ -177,26 +177,26 @@ local player = Players.LocalPlayer
 local workspace = game:GetService("Workspace")
 
 local teleportActive = false
+local teleportCoroutine
 
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(value)
     teleportActive = value
+
     if teleportActive then
-        coroutine.wrap(function()
-            local teleportDelay = 0.1
-            local originalPos
-            
+        -- If a coroutine is already running, no need to start a new one
+        if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then
+            return
+        end
+
+        teleportCoroutine = coroutine.create(function()
             while teleportActive do
-                -- Wait for character and HRP to be ready (handles respawn)
+                -- Wait for character and HumanoidRootPart
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:WaitForChild("HumanoidRootPart")
 
-                -- Save original position once per loop iteration
-                originalPos = hrp.CFrame
-
-                -- Find enemy folder dynamically
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
 
-                -- Collect enemies
+                -- Get enemies (HumanoidRootPart + Humanoid)
                 local enemies = {}
                 for _, obj in pairs(enemyFolder:GetDescendants()) do
                     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
@@ -204,27 +204,33 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(valu
                     end
                 end
 
-                -- Sort by distance
+                -- Sort enemies by distance
                 table.sort(enemies, function(a, b)
                     return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                 end)
 
-                -- Teleport to nearest enemy if any
+                -- Teleport to nearest enemy if exists
                 if #enemies > 0 then
                     local nearestEnemyHRP = enemies[1]
+                    local originalPos = hrp.CFrame
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
-                    wait(teleportDelay)
+                    wait(0.1)
+                    hrp.CFrame = originalPos
                 end
 
-                -- Teleport back
-                hrp.CFrame = originalPos
+                -- Check toggle state again before next loop
+                if not teleportActive then
+                    break
+                end
 
-                -- Short cooldown
                 wait(1)
             end
-        end)()
+        end)
+
+        coroutine.resume(teleportCoroutine)
     end
 end)
+
 
 
 -- Input
