@@ -221,7 +221,7 @@ local workspace = game:GetService("Workspace")
 local teleportActive = false
 local teleportCoroutine
 
-ocal Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     teleportActive = value
 
     if teleportActive then
