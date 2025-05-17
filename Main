@@ -80,6 +80,29 @@ local Init = library:Init()
 
 local Tab1 = Init:NewTab("Main")
 local Tab2 = Init:NewTab("Fun stuff")
+-- New Teleports Tab
+local Tab3 = Init:NewTab("Teleports")
+local SectionTele = Tab3:NewSection("Teleport Locations")
+
+local teleportLocations = {
+    "spawn",
+    "goblin ruins",
+    "ashen wastes",
+    "elemental caverns",
+    "blighted ruins (boss)"
+}
+
+for i, label in ipairs(teleportLocations) do
+    Tab4:NewButton(label, function()
+        local args
+        if i == 5 then
+            args = { "Boss" }
+        else
+            args = { "Layer" .. tostring(i - 1) }
+        end
+        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
+    end)
+end
 local tab4 = Init:NewTab("Credits")
 
 local Section1 = Tab1:NewSection("Yo whats up bro")
@@ -598,29 +621,7 @@ local Toggle1 = Tab2:NewToggle("Tp and back random player", false, function(valu
 end)
 
 
--- New Teleports Tab
-local Tab3 = Init:NewTab("Teleports")
-local SectionTele = Tab3:NewSection("Teleport Locations")
 
-local teleportLocations = {
-    "spawn",
-    "goblin ruins",
-    "ashen wastes",
-    "elemental caverns",
-    "blighted ruins (boss)"
-}
-
-for i, label in ipairs(teleportLocations) do
-    Tab4:NewButton(label, function()
-        local args
-        if i == 5 then
-            args = { "Boss" }
-        else
-            args = { "Layer" .. tostring(i - 1) }
-        end
-        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
-    end)
-end
 
 
 
