@@ -53,7 +53,6 @@ local function simulateFRTKeys()
         0
     }
     SpellEvent:FireServer(unpack(args2))
-    wait(0.1)
 
     -- Fire Spell3
     local args3 = {
@@ -63,7 +62,6 @@ local function simulateFRTKeys()
         0
     }
     SpellEvent:FireServer(unpack(args3))
-    wait(0.1)
 
     -- Fire Spell4
     local args4 = {
