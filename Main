@@ -87,8 +87,10 @@ local Section1 = Tab1:NewSection("Yo whats up bro")
 local Section1 = Tab2:NewSection("Fun stuff")
 local Section1 = tab4:NewSection("Credits")
 local Label1 = Tab1:NewLabel("Main scripts:", "center")--"left", "center", "right"
+local Label1 = tab3:NewSection("Legit teleports --- Ashen cliffs")
 local Label1 = tab4:NewSection("@errorgeorge on discord, very sigma ik")
 local Label2 = tab4:NewSection("Calm down ladies")
+
 
 -- Buttons
 local Button1 = Tab1:NewButton("Anger all mobs", function()
@@ -171,8 +173,6 @@ end)
 local Button4 = Tab1:NewButton("Spawn", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
 end)
-
-local Label1 = tab3:NewSection("Legit teleports --- Ashen cliffs")
 
 local Button1 = Tab3:NewButton("Spawn", function()
     local args = {
