@@ -6,6 +6,8 @@ local CoreGui = game:GetService("CoreGui")
 local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
+local selectedPlayer = ""
+
 
 library.rank = "developer"
 local Wm = library:Watermark("Fork's arcane conquest setup | v1.0.1 | " .. library:GetUsername() .. " | rank: " .. library.rank)
