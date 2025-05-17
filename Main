@@ -220,7 +220,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     break
                 end
 
-                wait(1)
+                wait(0.05)
             end
         end)
 
