@@ -212,10 +212,8 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(valu
                 -- Teleport to nearest enemy if exists
                 if #enemies > 0 then
                     local nearestEnemyHRP = enemies[1]
-                    local originalPos = hrp.CFrame
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
                     wait(0.1)
-                    hrp.CFrame = originalPos
                 end
 
                 -- Check toggle state again before next loop
