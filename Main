@@ -176,7 +176,7 @@ local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(val)
     print("Set player speed:" .. val)
 end)
-local Textbox1 = Tab2:NewTextbox("Dupe items", "", "1", "all", "small", true, false, function(val)
+local Textbox1 = Tab2:NewTextbox("Dupe items", "ID:", "1", "all", "small", true, false, function(val)
     local index = tonumber(val) -- Convert string input to number
     if not index then
         warn("Invalid input. Please enter a number.")
