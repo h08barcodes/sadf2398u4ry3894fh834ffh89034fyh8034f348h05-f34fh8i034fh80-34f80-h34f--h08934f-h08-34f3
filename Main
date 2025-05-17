@@ -258,7 +258,6 @@ local function simulateFRTKeys()
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
 
--- Toggle logic
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     teleportActive = value
 
@@ -278,7 +277,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
                         local enemy = obj.Parent
                         local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                        if humanoid and humanoid.Health > 0 then
+                        if humanoid and humanoid.Health > 0 and enemy.Name ~= "Defeated" then
                             table.insert(validEnemies, obj)
                         end
                     end
@@ -306,6 +305,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         coroutine.resume(teleportCoroutine)
     end
 end)
+
 
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
