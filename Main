@@ -229,6 +229,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 if #validEnemies > 0 then
                     local nearestEnemyHRP = validEnemies[1]
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
+                    simulateFRTKeys()
                     -- No teleport back
                 end
 
@@ -237,7 +238,6 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 end
 
                 wait(0.1)
-                simulateFRTKeys()
             end
         end)
 
