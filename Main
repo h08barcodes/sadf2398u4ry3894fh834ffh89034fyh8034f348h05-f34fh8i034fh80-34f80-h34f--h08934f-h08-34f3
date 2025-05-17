@@ -263,26 +263,22 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
     teleportActive = value
 
     if teleportActive then
-        if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then
-            return
-        end
+        if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
 
         teleportCoroutine = coroutine.create(function()
-            local lastTeleportTime = tick()
-
             while teleportActive do
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:FindFirstChild("HumanoidRootPart")
-                if not hrp then wait(1) continue end
+                if not hrp then task.wait(1) continue end
 
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-
-                -- Gather valid enemies
                 local validEnemies = {}
+
                 for _, obj in pairs(enemyFolder:GetDescendants()) do
                     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
-                        local enemyParent = obj.Parent
-                        if enemyParent and enemyParent.Name ~= "Defeated" then
+                        local enemy = obj.Parent
+                        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                        if humanoid and humanoid.Health > 0 then
                             table.insert(validEnemies, obj)
                         end
                     end
@@ -295,25 +291,21 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
 
                     local nearestEnemyHRP = validEnemies[1]
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
-                    simulateFRTKeys()
+
+                    if simulateFRTKeys then
+                        pcall(simulateFRTKeys)
+                    end
                 end
 
-                -- Check if 5 minutes (300 seconds) have passed
-                if tick() - lastTeleportTime >= 300 then
-                    local args = { "Layer3" }
-                    ReplicatedStorage:WaitForChild("Teleport"):FireServer(unpack(args))
-                    lastTeleportTime = tick()
-                end
-
-                wait(0.1)
+                task.wait(0.1)
             end
+
+            teleportCoroutine = nil
         end)
 
         coroutine.resume(teleportCoroutine)
     end
 end)
-
-
 
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
