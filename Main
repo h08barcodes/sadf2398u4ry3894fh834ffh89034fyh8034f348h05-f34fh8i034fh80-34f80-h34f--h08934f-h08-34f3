@@ -51,7 +51,7 @@ local Label2 = Tab3:NewSection("Calm down ladies")
 local Button1 = Tab1:NewButton("Anger all mobs", function()
     print("Started: Anger all mobs")
     local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-    local teleportDelay = 0.021
+    local teleportDelay = 1
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
