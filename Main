@@ -273,12 +273,12 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                 local validEnemies = {}
 
-                for _, obj in pairs(enemyFolder:GetDescendants()) do
-                    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
-                        local enemy = obj.Parent
+                for _, enemy in pairs(enemyFolder:GetChildren()) do
+                    if enemy:IsA("Model") and enemy.Name ~= "Defeated" then
                         local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                        if humanoid and humanoid.Health > 0 and enemy.Name ~= "Defeated" then
-                            table.insert(validEnemies, obj)
+                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
+                        if humanoid and humanoid.Health > 0 and enemyHRP then
+                            table.insert(validEnemies, enemyHRP)
                         end
                     end
                 end
@@ -305,6 +305,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         coroutine.resume(teleportCoroutine)
     end
 end)
+
 
 
 -- Input
