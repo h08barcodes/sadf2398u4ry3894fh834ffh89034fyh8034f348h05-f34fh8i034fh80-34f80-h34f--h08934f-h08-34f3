@@ -176,24 +176,27 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local workspace = game:GetService("Workspace")
 
-local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(value)
-    local teleportActive = value
+local teleportActive = false
 
-    -- Only run if toggle is ON
+local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(value)
+    teleportActive = value
     if teleportActive then
         coroutine.wrap(function()
-            local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
             local teleportDelay = 0.1
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character:WaitForChild("HumanoidRootPart")
-            local originalPos = hrp.CFrame
-
+            local originalPos
+            
             while teleportActive do
-                -- Refresh toggle state inside loop for clean stop
-                teleportActive = Toggle1.Value
-                if not teleportActive then break end
+                -- Wait for character and HRP to be ready (handles respawn)
+                local character = player.Character or player.CharacterAdded:Wait()
+                local hrp = character:WaitForChild("HumanoidRootPart")
 
-                -- Gather all enemies with HumanoidRootPart and Humanoid
+                -- Save original position once per loop iteration
+                originalPos = hrp.CFrame
+
+                -- Find enemy folder dynamically
+                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+
+                -- Collect enemies
                 local enemies = {}
                 for _, obj in pairs(enemyFolder:GetDescendants()) do
                     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
@@ -201,27 +204,28 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Enemies", false, function(valu
                     end
                 end
 
-                -- Sort enemies by distance to player
+                -- Sort by distance
                 table.sort(enemies, function(a, b)
                     return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                 end)
 
-                -- Teleport to nearest enemy only
+                -- Teleport to nearest enemy if any
                 if #enemies > 0 then
                     local nearestEnemyHRP = enemies[1]
                     hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
                     wait(teleportDelay)
                 end
 
-                -- Return to original position
+                -- Teleport back
                 hrp.CFrame = originalPos
 
-                -- Small cooldown before next loop iteration
+                -- Short cooldown
                 wait(1)
             end
         end)()
     end
 end)
+
 
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
