@@ -302,7 +302,7 @@ local Selector1 = Tab1:NewSelector(
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextSize = 24
-    TitleLabel.Text = "Inventory viewer"
+    TitleLabel.Text = "Inventory of" selectedPlayer
     TitleLabel.Parent = Frame
         
         local CloseBtn = Instance.new("TextButton")
