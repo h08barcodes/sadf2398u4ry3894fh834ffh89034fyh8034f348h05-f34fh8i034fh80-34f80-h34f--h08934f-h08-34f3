@@ -259,121 +259,27 @@ local function simulateFRTKeys()
 end
 
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+    print("Toggle changed:", value)  -- Check toggle triggers
+
     local teleportActive = value
     local teleportCoroutine
 
-    local function teleportToGroundAbove(cframe)
-        local origin = cframe.Position + Vector3.new(0, 10, 0)
-        local direction = Vector3.new(0, -50, 0)
-        local params = RaycastParams.new()
-        params.FilterDescendantsInstances = {workspace.Ignore} -- optional
-        params.FilterType = Enum.RaycastFilterType.Blacklist
-        local result = workspace:Raycast(origin, direction, params)
-
-        local targetPosition
-        if result then
-            targetPosition = result.Position + Vector3.new(0, 3, 0)
-            print("Raycast hit ground at:", targetPosition)
-        else
-            targetPosition = cframe.Position + Vector3.new(0, 3, 0)
-            print("Raycast missed, teleporting above original pos at:", targetPosition)
-        end
-
-        return CFrame.new(targetPosition, cframe.Position + cframe.LookVector)
-    end
-
-    local function angerAllMobs(hrp, enemyFolder)
-        print("Started: Anger all mobs")
-
-        local visited = {}
-        local originalPos = hrp.CFrame
-
-        for _, obj in pairs(enemyFolder:GetDescendants()) do
-            if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
-                local enemy = obj.Parent
-                if not visited[enemy] then
-                    visited[enemy] = true
-                    local targetCFrame = teleportToGroundAbove(obj.CFrame)
-                    print("Teleporting to mob at:", targetCFrame.Position)
-                    hrp.CFrame = targetCFrame
-                    task.wait(0.1)
-                end
-            end
-        end
-
-        hrp.CFrame = teleportToGroundAbove(originalPos)
-        print("Completed: Anger all mobs, returned to original position")
-    end
-
     if teleportActive then
+        print("Starting teleport coroutine")
         if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
 
-        local player = game.Players.LocalPlayer
-
         teleportCoroutine = coroutine.create(function()
-            local lastFoundEnemyTime = tick()
-            local lastAngerTime = tick()
-
+            print("Coroutine started")
             while teleportActive do
-                local character = player.Character or player.CharacterAdded:Wait()
-                local hrp = character:FindFirstChild("HumanoidRootPart")
-                if not hrp then
-                    print("No HumanoidRootPart found, waiting...")
-                    task.wait(1)
-                    continue
-                end
-
-                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-                local validEnemies = {}
-
-                -- Gather valid enemies (skip Defeated)
-                for _, model in pairs(enemyFolder:GetChildren()) do
-                    if model:IsA("Model") and model.Name ~= "Defeated" then
-                        local humanoid = model:FindFirstChildOfClass("Humanoid", true)
-                        local enemyHRP = model:FindFirstChild("HumanoidRootPart", true)
-
-                        if humanoid and humanoid.Health > 0 and enemyHRP then
-                            table.insert(validEnemies, enemyHRP)
-                        end
-                    end
-                end
-
-                if #validEnemies > 0 then
-                    lastFoundEnemyTime = tick()
-
-                    table.sort(validEnemies, function(a, b)
-                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
-                    end)
-
-                    local nearestEnemyHRP = validEnemies[1]
-                    local targetCFrame = teleportToGroundAbove(nearestEnemyHRP.CFrame)
-                    print("Teleporting to nearest enemy at:", targetCFrame.Position)
-                    hrp.CFrame = targetCFrame
-
-                    if simulateFRTKeys then
-                        pcall(simulateFRTKeys)
-                    end
-                else
-                    if tick() - lastFoundEnemyTime >= 3 then
-                        lastFoundEnemyTime = tick()
-                        angerAllMobs(hrp, enemyFolder)
-                    end
-                end
-
-                if tick() - lastAngerTime >= 20 then
-                    lastAngerTime = tick()
-                    angerAllMobs(hrp, enemyFolder)
-                end
-
-                task.wait(0.1)
+                print("Inside loop")
+                task.wait(1)
             end
-
-            teleportCoroutine = nil
+            print("Coroutine ended")
         end)
 
         coroutine.resume(teleportCoroutine)
     else
-        -- If toggled off, make sure coroutine is nil so it can be restarted later
+        print("Toggle off")
         teleportCoroutine = nil
     end
 end)
