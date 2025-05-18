@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 local rankTable = {
     ["GLITCHINGDOGE"] = "developer",
     ["AdminGuy123"] = "admin",
-    ["ModPerson"] = "moderator",
+    ["T_Thebedwasgod"] = "moderator",
 }
 library.rank = rankTable[LocalPlayer.Name]
 
