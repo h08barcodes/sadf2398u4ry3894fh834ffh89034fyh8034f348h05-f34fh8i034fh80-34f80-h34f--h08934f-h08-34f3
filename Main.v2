@@ -1,0 +1,1097 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Consistt/Ui/main/UnLeaked"))()
+
+local Players = game:GetService("Players")
+local workspace = workspace
+local CoreGui = game:GetService("CoreGui")
+local hookSetup = false
+local originalNamecall
+local damageBlockerToggle = false
+
+
+
+library.rank = "developer"
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.1.2 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+
+local Notif = library:InitNotifications()
+
+for i = 21,1,-1 do 
+    task.wait(0.05)
+    local LoadingXSX = Notif:Notify("Loading fork's arcane conquest setup", 3, "information") -- notification, alert, error, success, information
+end 
+
+library.title = "Fork's arcane conquest setup"
+
+local function getPlayerNames()
+    local playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    return playerNames
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
+
+local vector = Vector3  -- Just an alias to keep it similar to your original format
+
+local function simulateFRTKeys()
+    -- Fire Spell1
+    local args1 = {
+        "Spell1",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args1))
+    wait(0.1)
+
+    -- Fire Spell2
+    local args2 = {
+        "Spell2",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args2))
+
+    -- Fire Spell3
+    local args3 = {
+        "Spell3",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args3))
+
+    -- Fire Spell4
+    local args4 = {
+        "Spell4",
+        vector.new(0, 145.974, 0),
+        vector.zero,
+        0
+    }
+    SpellEvent:FireServer(unpack(args4))
+end
+
+library:Introduction()
+
+wait(1)
+local Init = library:Init()
+
+local Tab1 = Init:NewTab("Main")
+local Tab2 = Init:NewTab("Fun stuff")
+-- New Teleports Tab
+local Tab4 = Init:NewTab("Teleports")
+local SectionTele = Tab4:NewSection("Teleport Locations")
+
+local teleportLocations = {
+    "Spawn", 
+    "Goblin ruins", 
+    "Ashen wastes", 
+    "Elemental caverns", 
+    "Blighted ruins (boss)" 
+}
+
+for i, label in ipairs(teleportLocations) do
+    Tab4:NewButton(label, function()
+        local args
+        if i == 5 then
+            args = { "Boss" }
+        else
+            args = { "Layer" .. tostring(i - 1) }
+        end
+        game:GetService("ReplicatedStorage"):WaitForChild("Teleport"):FireServer(unpack(args))
+    end)
+end
+local tab4 = Init:NewTab("Credits")
+
+local Section1 = Tab1:NewSection("Yo whats up bro")
+local Section1 = Tab2:NewSection("Fun stuff")
+local Section1 = tab4:NewSection("Credits")
+local Label1 = Tab1:NewLabel("Main scripts:", "center")--"left", "center", "right"
+
+local Label1 = tab4:NewSection("@errorgeorge on discord, very sigma ik")
+local Label2 = tab4:NewSection("Calm down ladies")
+
+-- Buttons
+local Button1 = Tab1:NewButton("Anger all mobs", function()
+    print("Started: Anger all mobs")
+    local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+    local teleportDelay = 0.1
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    local visited = {}
+    local originalPos = hrp.CFrame
+    local function tpTo(cframe)
+     hrp.CFrame = cframe
+    end
+    for _, obj in pairs(enemyFolder:GetDescendants()) do
+     if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
+           local enemy = obj.Parent
+          if not visited[enemy] then
+              visited[enemy] = true
+              tpTo(obj.CFrame + Vector3.new(0, 3, 0))
+                wait(teleportDelay)
+            end
+        end
+    end
+    tpTo(originalPos)
+    print("Completed: Anger all mobs")
+end)
+local Button2 = Tab1:NewButton("Anticlientkick (requires hookmetamethod)", function()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    print("Started Client Antikick Enable")
+
+    if not hookmetamethod then
+        print("Failed Client Antikick Enable (hookmetamethod missing)")
+        return
+    end
+
+    local oldhmmi
+    local oldhmmnc
+    local oldKickFunction
+
+    if hookfunction then
+        oldKickFunction = hookfunction(LocalPlayer.Kick, function() end)
+    end
+    print("Completed Client Antikick Enable")
+    oldhmmi = hookmetamethod(game, "__index", function(self, method)
+        if self == LocalPlayer and method:lower() == "kick" then
+            return error("Expected ':' not '.' calling member function Kick", 2)
+        end
+        return oldhmmi(self, method)
+    end)
+
+    oldhmmnc = hookmetamethod(game, "__namecall", function(self, ...)
+        if self == LocalPlayer and getnamecallmethod():lower() == "kick" then
+            return
+        end
+        return oldhmmnc(self, ...)
+    end)
+end)
+local Button3 = Tab1:NewButton("Rejoin", function()
+
+    local Players = game:GetService("Players")
+    local TeleportService = game:GetService("TeleportService")
+
+    local LocalPlayer = Players.LocalPlayer
+    local PlaceId = game.PlaceId
+    local JobId = game.JobId
+    print("Attempting to rejoin...")
+
+    if #Players:GetPlayers() <= 1 then
+        LocalPlayer:Kick("\nRejoining...")
+        task.wait()
+        TeleportService:Teleport(PlaceId, LocalPlayer)
+    else
+        TeleportService:TeleportToPlaceInstance(PlaceId, JobId, LocalPlayer)
+    end
+end)
+
+local Button4 = Tab1:NewButton("Infinite yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
+end)
+-- Toggles
+local Toggle1 = Tab1:NewToggle("Damage Blocker (requires hookmetamethod)", false, function(value)
+    damageBlockerToggle = value
+
+    if damageBlockerToggle then
+        print("Started Damage Blocker Enable")
+    else
+        print("Started Damage Blocker Disable")
+    end
+
+    if not hookmetamethod then
+        if damageBlockerToggle then
+            print("Failed Damage Blocker Enable (hookmetamethod missing)")
+        else
+            print("Failed Damage Blocker Disable (hookmetamethod missing)")
+        end
+        return
+    end
+
+    if not hookSetup then
+        hookSetup = true
+        local mt = getrawmetatable(game)
+        originalNamecall = mt.__namecall
+        setreadonly(mt, false)
+
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if method == "FireServer" and self.Name == "Damage" and damageBlockerToggle then
+                print("Damage Blocker: Blocked FireServer call to 'Damage'")
+                return
+            end
+            return originalNamecall(self, ...)
+        end)
+
+        setreadonly(mt, true)
+    end
+
+    if damageBlockerToggle then
+        print("Completed Damage Blocker Enable")
+    else
+        print("Completed Damage Blocker Disable")
+    end
+end)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local workspace = game:GetService("Workspace")
+
+local teleportActive = false
+local teleportCoroutine
+
+local function simulateFRTKeys()
+    local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
+    local vector = Vector3
+
+    SpellEvent:FireServer("Spell1", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell2", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell3", vector.new(0, 145.974, 0), vector.zero, 0)
+    wait(0.1)
+    SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
+end
+
+local player = game.Players.LocalPlayer
+local nearestEnemyCoroutine
+_G.nearestEnemyActive = false -- global flag for cross-script communication
+local flip = true
+
+local function angerAllMobs(hrp, enemyFolder)
+    print("Started: Anger all mobs")
+    local visited = {}
+    local originalPos = hrp.CFrame
+
+    for _, obj in pairs(enemyFolder:GetDescendants()) do
+        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+            local enemy = obj:FindFirstAncestorOfClass("Model")
+            if enemy and not visited[enemy] and not enemy:FindFirstChild("VoidspawnSerpentHitbox") then
+                local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    visited[enemy] = true
+                    hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+                    task.wait(0.05)
+                end
+            end
+        end
+    end
+
+    hrp.CFrame = originalPos
+    print("Completed: Anger all mobs")
+end
+
+local function isValidEnemy(enemy)
+    if not enemy then return false end
+    if enemy.Name == "Defeated" then return false end
+    if enemy:FindFirstChild("VoidspawnSerpentHitbox") then return false end
+    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then
+        -- Allow Voidforged Gladiator even if it fails the humanoid check
+        if enemy.Name == "Voidforged Gladiator" then
+            local hrp = enemy:FindFirstChild("HumanoidRootPart")
+            return hrp ~= nil
+        end
+        return false
+    end
+    return true
+end
+
+
+local function stopAshbranchScript()
+    if _G.ashbranchActive then
+        _G.ashbranchActive = false
+    end
+end
+
+local function startNearestEnemyCoroutine()
+    _G.nearestEnemyActive = true
+    nearestEnemyCoroutine = coroutine.create(function()
+        local lastFoundEnemyTime = tick()
+        local lastAngerTime = tick()
+
+        while _G.nearestEnemyActive do
+            local character = player.Character
+            if not character or not character.Parent then
+                character = player.CharacterAdded:Wait()
+            end
+
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+                local validEnemies = {}
+
+                for _, obj in pairs(enemyFolder:GetDescendants()) do
+                    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+                        local enemy = obj:FindFirstAncestorOfClass("Model")
+                        if isValidEnemy(enemy) then
+                            table.insert(validEnemies, obj)
+                        end
+                    end
+                end
+
+                if #validEnemies > 0 then
+                    lastFoundEnemyTime = tick()
+
+                    table.sort(validEnemies, function(a, b)
+                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
+                    end)
+
+                    local nearest = validEnemies[1]
+                    local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
+                    flip = not flip
+
+                    hrp.CFrame = nearest.CFrame + offset
+
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                    end
+
+                    if simulateFRTKeys then
+                        pcall(simulateFRTKeys)
+                    end
+                else
+                    if tick() - lastFoundEnemyTime >= 1.5 then
+                        lastFoundEnemyTime = tick()
+                        angerAllMobs(hrp, enemyFolder)
+                    end
+                end
+
+                if tick() - lastAngerTime >= 10 then
+                    lastAngerTime = tick()
+                    angerAllMobs(hrp, enemyFolder)
+                end
+            end
+
+            task.wait(0.05)
+        end
+
+        nearestEnemyCoroutine = nil
+    end)
+
+    coroutine.resume(nearestEnemyCoroutine)
+end
+
+local function startNearestEnemyCoroutinew()
+    _G.nearestEnemyActive = true
+    nearestEnemyCoroutine = coroutine.create(function()
+        local lastFoundEnemyTime = tick()
+        local lastAngerTime = tick()
+
+        while _G.nearestEnemyActive do
+            local character = player.Character
+            if not character or not character.Parent then
+                character = player.CharacterAdded:Wait()
+            end
+
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+                local validEnemies = {}
+
+                for _, obj in pairs(enemyFolder:GetDescendants()) do
+                    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+                        local enemy = obj:FindFirstAncestorOfClass("Model")
+                        if isValidEnemy(enemy) then
+                            table.insert(validEnemies, obj)
+                        end
+                    end
+                end
+
+                if #validEnemies > 0 then
+                    lastFoundEnemyTime = tick()
+
+                    table.sort(validEnemies, function(a, b)
+                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
+                    end)
+
+                    local nearest = validEnemies[1]
+                    local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
+                    flip = not flip
+
+                    hrp.CFrame = nearest.CFrame + offset
+
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                    end
+
+                    if simulateFRTKeys then
+                        pcall(simulateFRTKeys)
+                    end
+                else
+                    if tick() - lastFoundEnemyTime >= 1.5 then
+                        lastFoundEnemyTime = tick()
+                        angerAllMobs(hrp, enemyFolder)
+                    end
+                end
+
+                if tick() - lastAngerTime >= 10000 then
+                    lastAngerTime = tick()
+                    angerAllMobs(hrp, enemyFolder)
+                end
+            end
+
+            task.wait(0.05)
+        end
+
+        nearestEnemyCoroutine = nil
+    end)
+
+    coroutine.resume(nearestEnemyCoroutine)
+end
+-- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
+local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+    if value then
+        if _G.nearestEnemyActive then return end
+        startNearestEnemyCoroutine()
+    else
+        _G.nearestEnemyActive = false
+    end
+end)
+
+-- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
+local ToggleNearestEnemyW = Tab2:NewToggle("AFK Grind Nearest Alive Enemy No Anger", false, function(value)
+    if value then
+        if _G.nearestEnemyActive then return end
+        startNearestEnemyCoroutinew()
+    else
+        _G.nearestEnemyActive = false
+    end
+end)
+
+
+
+
+
+-- Input
+local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(val)
+    print("Set player speed:" .. val)
+end)
+local Textbox1 = Tab2:NewTextbox("Dupe items", "ID:", "1", "all", "small", true, false, function(val)
+    local index = tonumber(val) -- Convert string input to number
+    if not index then
+        warn("Invalid input. Please enter a number.")
+        return
+    end
+
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local inventoryFolder = workspace:WaitForChild("Inventories"):WaitForChild(localPlayer.Name):WaitForChild("Items")
+
+    local children = inventoryFolder:GetChildren()
+    local firstItem = children[index]
+    if not firstItem then
+        warn("Item at position " .. index .. " not found.")
+        return
+    end
+
+    local itemName = firstItem.Name
+
+    for _, item in ipairs(children) do
+        if item.Name == itemName then
+            local clone = item:Clone()
+            clone.Parent = inventoryFolder
+        end
+    end
+end)
+
+
+local Selector1 = Tab1:NewSelector(
+    "Inventory viewer",
+    "Select a player",
+    getPlayerNames(),
+    function(selectedPlayer)
+        local workspace = workspace
+
+        local playerName = selectedPlayer  -- dynamically set this
+        local inventoryFolder = workspace.Inventories:FindFirstChild(playerName)
+
+        if not inventoryFolder then
+            warn("Inventory folder for player '"..playerName.."' not found.")
+            return
+        end
+
+        local rarityNames = {
+            [1] = "common",
+            [2] = "uncommon",
+            [3] = "rare",
+            [4] = "epic",
+            [5] = "legendary",
+            [6] = "MYTHICAL",
+            [7] = "FABLED",
+        }
+
+        local rarityColors = {
+            [1] = Color3.new(1, 1, 1),               -- white
+            [2] = Color3.fromRGB(75, 175, 75),       -- green
+            [3] = Color3.fromRGB(75, 150, 225),      -- blue
+            [4] = Color3.fromRGB(160, 85, 200),      -- purple
+            [5] = Color3.fromRGB(230, 220, 80),      -- yellow
+            [6] = Color3.fromRGB(230, 40, 40),       -- red
+            [7] = Color3.fromRGB(50, 190, 225),      -- light blue
+            [8] = Color3.fromRGB(0, 0, 0),           -- black (special)
+        }
+
+        local classExamples = {
+            ["weapons/armour"] = "1,1.0482254491066794,0.9764606692172622,0.9508609612713262,1.0457683724635385,0,0,0",
+            ["materials/runes/amulets"] = "3,2,0",  -- merged group, will split amulet/material later
+            ["potions"]         = "2,0",
+            ["spells"]          = "3,1,1,0,0,0,15",
+        }
+
+        local function getTypeSignature(csv)
+            local types = {}
+            for val in string.gmatch(csv, "([^,]+)") do
+                local n = tonumber(val)
+                if n ~= nil then
+                    table.insert(types, "number")
+                else
+                    table.insert(types, "string")
+                end
+            end
+            return table.concat(types, ",")
+        end
+
+        local signatureToClasses = {}
+        for className, exampleVals in pairs(classExamples) do
+            local sig = getTypeSignature(exampleVals)
+            signatureToClasses[sig] = className
+        end
+
+        local function getItemClass(valuesString)
+            local sig = getTypeSignature(valuesString)
+            local baseClass = signatureToClasses[sig] or "unknown"
+
+            if baseClass == "materials/runes/amulets" then
+                -- Determine amulet or material by second number
+                local secondNum = tonumber((valuesString:match("^[^,]+,([^,]+)"))) or 0
+                if secondNum == 0 then
+                    return "amulets"
+                else
+                    return "materials"
+                end
+            end
+
+            return baseClass
+        end
+
+        local items = {}
+
+        for _, item in ipairs(inventoryFolder.Items:GetChildren()) do
+            local val = item.Value
+            if typeof(val) == "string" then
+                -- Extract item name after first underscore and before first comma
+                local namePart = val:match("^[^_]+_(.-),")
+                -- Extract rarity (first number after first comma)
+                local rarityStr = val:match("^[^,]+,([^,]+)")
+                local rarity = tonumber(rarityStr) or 0
+                if rarity > 7 then rarity = 8 end
+                -- Extract all values after first comma for class checking
+                local classValuesStr = val:match("^[^,]+,(.+)$") or ""
+                local class = getItemClass(classValuesStr)
+                if namePart then
+                    table.insert(items, {
+                        name = namePart,
+                        rarity = rarity,
+                        class = class,
+                        originalVal = val,
+                    })
+                end
+            end
+        end
+
+        table.sort(items, function(a, b)
+            return a.rarity > b.rarity
+        end)
+
+        local CoreGui = game:GetService("CoreGui")
+
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "ItemListGui"
+        ScreenGui.ResetOnSpawn = false
+        ScreenGui.Parent = CoreGui
+
+        local Frame = Instance.new("Frame")
+        Frame.Size = UDim2.new(0, 400, 0, 500)
+        Frame.Position = UDim2.new(0.5, -200, 0.5, -250)
+        Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        Frame.BorderSizePixel = 0
+        Frame.Parent = ScreenGui
+        Frame.Active = true
+        Frame.Draggable = true
+
+        local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, 0, 0, 30)
+    TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.SourceSansBold
+    TitleLabel.TextSize = 24
+    TitleLabel.Text = "Inventory of " .. selectedPlayer
+    TitleLabel.Parent = Frame
+        
+        local CloseBtn = Instance.new("TextButton")
+        CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+        CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+        CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+        CloseBtn.TextColor3 = Color3.new(1,1,1)
+        CloseBtn.Text = "X"
+        CloseBtn.Font = Enum.Font.SourceSansBold
+        CloseBtn.TextScaled = true
+        CloseBtn.Parent = Frame
+
+        CloseBtn.MouseButton1Click:Connect(function()
+            ScreenGui:Destroy()
+        end)
+
+        local ScrollingFrame = Instance.new("ScrollingFrame")
+        ScrollingFrame.Size = UDim2.new(1, -10, 1, -50)
+        ScrollingFrame.Position = UDim2.new(0, 5, 0, 40)
+        ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        ScrollingFrame.ScrollBarThickness = 8
+        ScrollingFrame.BackgroundTransparency = 1
+        ScrollingFrame.Parent = Frame
+
+        local UIListLayout = Instance.new("UIListLayout")
+        UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout.Parent = ScrollingFrame
+
+        local function applyRarityColor(rarity)
+            local col = rarityColors[rarity] or Color3.new(1,1,1)
+            local opacity = 1
+            if rarity == 2 then
+                opacity = 0.4
+            elseif rarity == 3 or rarity == 4 then
+                opacity = 0.8
+            elseif rarity < 5 then
+                opacity = 0.3
+            end
+            return Color3.new(
+                col.R * opacity + (1 - opacity),
+                col.G * opacity + (1 - opacity),
+                col.B * opacity + (1 - opacity)
+            )
+        end
+
+        for i, item in ipairs(items) do
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(1, -10, 0, 25)
+            label.BackgroundTransparency = 1
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.Font = Enum.Font.SourceSans
+            label.TextSize = 20
+            label.TextWrapped = false
+            label.TextTruncate = Enum.TextTruncate.None
+
+            local rarityName = rarityNames[item.rarity] or "SPECIAL"
+            local displayText = ""
+
+            if item.class == "materials" then
+                local quantity = 1
+                if item.originalVal then
+                    local qtyStr = item.originalVal:match("^[^,]+,[^,]+,([^,]+)")
+                    quantity = tonumber(qtyStr) or 1
+                end
+                displayText = string.format("[%s] %s x %d (%s)", string.upper(rarityName), item.name, quantity, item.class)
+            else
+                displayText = string.format("[%s] %s (%s)", string.upper(rarityName), item.name, item.class)
+            end
+
+            label.Text = displayText
+            label.TextColor3 = applyRarityColor(item.rarity)
+            label.Parent = ScrollingFrame
+
+            -- Wait a frame so AbsoluteSize is valid
+            task.wait()
+
+            local maxWidth = label.AbsoluteSize.X
+            local currentSize = label.TextSize
+
+            -- Shrink font size if text too wide
+            while label.TextBounds.X > maxWidth and currentSize > 8 do
+                currentSize = currentSize - 1
+                label.TextSize = currentSize
+                task.wait(0.01)
+            end
+        end
+
+        local totalHeight = #items * 25 + 10
+        ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+    end
+)
+local function updateSelector()
+    Selector1:SetOptions(getPlayerNames())
+end
+Players.PlayerAdded:Connect(updateSelector)
+Players.PlayerRemoving:Connect(updateSelector)
+local Button5 = Tab1:NewButton("Refresh script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main"))()
+end)
+
+
+local Toggle1 = Tab2:NewToggle("Tp and back random player", false, function(value)
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local teleportActive = value
+
+    -- Run the loop only if toggle is ON
+    if teleportActive then
+        coroutine.wrap(function()
+            while teleportActive do
+                -- Refresh teleportActive inside loop in case toggle was switched off
+                teleportActive = Toggle1.Value  -- assuming Toggle1 has a .Value property for current toggle state
+                if not teleportActive then break end
+
+                local others = {}
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        table.insert(others, player)
+                    end
+                end
+
+                if #others > 0 then
+                    local randomPlayer = others[math.random(1, #others)]
+                    local targetHRP = randomPlayer.Character.HumanoidRootPart
+                    local originalHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+                    if originalHRP then
+                        local originalPos = originalHRP.CFrame
+                        originalHRP.CFrame = targetHRP.CFrame
+                        wait(0.5)
+                        originalHRP.CFrame = originalPos
+                    end
+                end
+
+                wait(2)
+            end
+        end)()
+    end
+end)
+
+
+
+
+
+
+
+local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
+
+-- // FUNCTION DOCS: 
+--[[
+    MAIN COMPONENT DOCS:
+
+    -- // local library = loadstring(game:HttpGet(link: url))()
+    -- // library.title = text: string
+    -- // local Window = library:Init()
+
+    -- [library.title contains rich text]
+
+    -- / library:Remove()
+    -- destroys the library
+
+    -- / library:Text("new")
+    -- sets the lbrary's text to something new
+
+    - / library:UpdateKeybind(Enum.KeyCode.RightAlt)
+    -- sets the lbrary's keybind to switch visibility to something new
+
+    __________________________
+
+    -- // local notificationLibrary = library:InitNotifications()
+    -- // local Notification = notificationLibrary:Notify(text: string, time: number, type: string (information, notification, alert, error, success))
+
+    -- [Notify contains rich text]
+
+    -- / 3rd argument is a function, used like this:
+    
+    Notif:Notify("Function notification", 7, function()
+        print("done")
+    end)
+
+    -- / Welcome:Text("new text")
+    -- sets the notifications text to something differet [ADDS A +0.4 ONTO YOUR TIMER]
+
+    __________________________
+
+    -- // local Wm = library:Watermark(text: string)
+
+    -- [Watermark contains rich text]
+
+    -- / Wm:Hide()
+    -- hides the watermark from eye view
+
+    -- / Wm:Show()
+    -- makes the watermark visible at the top of your screen
+
+    -- / Wm:Text("new")
+    -- sets the watermark's text to something new
+
+    -- / Wm:Remove()
+    -- destroys the watermark
+
+    __________________________
+
+    -- // local Tab1 = Init:NewTab(text: string)
+
+    -- [tab title contains rich text]
+
+    -- / Tab1:Open()
+    -- opens the tab you want
+
+    -- / Tab1:Remove()
+    -- destroys the tab
+
+    -- / Tab1:Hide()
+    -- hides the tab from eye view
+
+    -- / Tab1:Show()
+    -- makes the tab visible on the selection table
+
+    -- / Tab1:Text("new")
+    -- sets the tab's text to something new
+
+    __________________________
+
+    -- [label contains rich text]
+
+    -- / Label1:Text("new")
+    -- sets the label's text to something new
+
+    -- / Label1:Remove()
+    -- destroys the label
+
+    -- / Label1:Hide()
+    -- hides the label from eye view
+
+    -- / Label1:Show()
+    -- makes the tab visible on the page that is used
+
+    -- / Label1:Align("le")
+    -- aligns the label to a new point in text X
+
+    __________________________
+
+    -- [Button contains rich text]
+
+    -- / Button1:AddButton("text", function() end)
+    -- adds a new button inside of the frame [CAN ONLY GO UP TO 4 BUTTONS AT A TIME]
+
+    -- / Button1:Fire()
+    -- executes the script within the button
+
+    -- / Button1:Text("new")
+    -- sets the button's text to something new
+
+    -- / Button1:Hide()
+    -- hides the button from eye view
+
+    -- / Button1:Show()
+    -- makes the button visible
+
+    -- / Button1:Remove()
+    -- destroys the button
+
+    __________________________
+
+    -- [Sections contain rich text]
+
+    -- / Section1:Text("new")
+    -- sets the section's text to something new
+
+    -- / Section1:Hide()
+    -- hides the section from eye view
+
+    -- / Section1:Show()
+    -- makes the section visible
+
+    -- / Section1:Remove()
+    -- destroys the section
+
+    __________________________
+
+    -- [Toggles contain rich text]
+
+    -- / Toggle1:Text("new")
+    -- sets the toggle's text to something new
+
+    -- / Toggle1:Hide()
+    -- hides the toggle from eye view
+
+    -- / Toggle1:Show()
+    -- makes the toggle visible
+
+    -- / Toggle1:Remove()
+    -- destroys the toggle
+
+    -- / Toggle1:Change()
+    -- changes the toggles state to the opposite
+
+    -- / Toggle1:Set(true)
+    -- sets the toggle to true even if it is true
+
+    -- / Toggle1:AddKeybind(Enum.KeyCode.P, false, function() end) -- false / true is used for just changing the toggles state
+    -- adds a keybind to the toggle
+
+    -- / Toggle1:SetFunction(function() end)
+    -- sets the toggles function
+
+    __________________________
+
+    -- [Keybinds contain rich text]
+
+    -- / Keybind1:Text("new")
+    -- sets the keybind's text to something new
+
+    -- / Keybind1:Hide()
+    -- hides the keybind from eye view
+
+    -- / Keybind1:Show()
+    -- makes the keybind visible
+
+    -- / Keybind1:Remove()
+    -- destroys the keybind
+
+    -- / Keybind1:SetKey(Enum.KeyCode.P)
+    -- sets the keybinds new key
+
+    -- / Keybind1:Fire()
+    -- fires the keybind function
+
+    -- / Keybind1:SetFunction(function() end)
+    -- sets the new keybind function
+
+    __________________________
+
+    -- [Textboxes contain rich text]
+
+    -- / Textbox1:Input("new")
+    -- sets the text box's input to something new
+
+    -- / Textbox1:Place("new")
+    -- sets the text box's placeholder to something new
+
+    -- / Textbox1:Fire()
+    -- fires the textbox function
+
+    -- / Textbox1:SetFunction(function() end)
+    -- sets the text boxes new function
+
+    -- / Textbox1:Text("new")
+    -- sets the textbox's text to something new
+
+    -- / Textbox1:Hide()
+    -- hides the textbox from eye view
+
+    -- / Textbox1:Show()
+    -- makes the textbox visible
+
+    -- / Textbox1:Remove()
+    -- destroys the textbox
+
+    __________________________
+
+    -- [Selectors contain rich text]
+
+    -- / Selector1:SetFunction(function() end)
+    -- sets the selector new function
+
+    -- / Selector1:Text("new")
+    -- sets the selector's text to something new
+
+    -- / Selector1:Hide()
+    -- hides the selector from eye view
+
+    -- / Selector1:Show()
+    -- makes the selector visible
+
+    -- / Selector1:Remove()
+    -- destroys the selector
+
+    __________________________
+
+    -- [Sliders contain rich text]
+
+    -- / Slider1:Value(1)
+    -- sets the slider new value
+
+    -- / Slider1:SetFunction(function() end)
+    -- sets the slider new function
+
+    -- / Slider1:Text("new")
+    -- sets the slider's text to something new
+
+    -- / Slider1:Hide()
+    -- hides the slider from eye view
+
+    -- / Slider1:Show()
+    -- makes the slider visible
+
+    -- / Slider1:Remove()
+    -- destroys the slider
+
+    ---------------------------------------------------------------------------------------------------------
+
+    MISC SEMI USELESS DOCS:
+
+    -- / library.rank = ""
+    -- returns the rank you choose (default = "private")
+
+    -- / library.fps
+    -- returns FPS you're getting in game
+
+    -- / library.version
+    -- returns the version of the library
+
+    -- / library.title = ""
+    -- returns the title of the library
+
+    -- / library:GetDay("word") -- word, short, month, year
+    -- returns the os day
+
+    -- / library:GetTime("24h") -- 24h, 12h, minute, half, second, full, ISO, zone
+    -- returns the os time
+
+    -- / library:GetMonth("word") -- word, short, digit
+    -- returns the os month
+
+    -- / library:GetWeek("year_S") -- year_S, day, year_M
+    -- returns the os week
+
+    -- / library:GetYear("digits") -- digits, full
+    -- returns the os year
+
+    -- / library:GetUsername()
+    -- returns the localplayers username
+
+    -- / library:GetUserId()
+    -- returns the localplayers userid
+
+    -- / library:GetPlaceId()
+    -- returns the games place id
+
+    -- / library:GetJobId()
+    -- returns the games job id
+
+    -- / library:CheckIfLoaded()
+    -- returns true if you're fully loaded
+
+    -- / library:Rejoin()
+    -- rejoins the same server as you was in
+
+    -- / library:Copy("stuff")
+    -- copies the inputed string
+
+    -- / library:UnlockFps(500) -- only works with synapse
+    -- sets the max fps to something you choose
+    
+    -- / library:PromptDiscord("invite")
+    -- invites you to a discord
+]]
