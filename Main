@@ -260,8 +260,10 @@ end
 
 local player = game.Players.LocalPlayer
 local ashbranchCoroutine
-local ashbranchActive = false
 local flip = true
+
+-- Use global flag for active state to sync with other script
+_G.ashbranchActive = false
 
 local function angerAllMobs(hrp, enemyFolder)
     print("Started: Anger all mobs")
@@ -296,7 +298,6 @@ local function isValidEnemy(enemy)
 end
 
 local function stopNearestEnemyScript()
-    -- Send an event, set a global flag, or disable the other toggle here
     if _G.nearestEnemyActive then
         _G.nearestEnemyActive = false
     end
@@ -306,7 +307,7 @@ local function startAshbranchCoroutine()
     ashbranchCoroutine = coroutine.create(function()
         local lastAngerTime = tick()
 
-        while ashbranchActive do
+        while _G.ashbranchActive do
             local character = player.Character
             if not character or not character.Parent then
                 character = player.CharacterAdded:Wait()
@@ -335,7 +336,6 @@ local function startAshbranchCoroutine()
                         pcall(simulateFRTKeys)
                     end
                 else
-                    -- If Ashbranch is not found or dead, just wait a little before checking again
                     task.wait(0.5)
                 end
 
@@ -354,19 +354,19 @@ local function startAshbranchCoroutine()
     coroutine.resume(ashbranchCoroutine)
 end
 
--- Your GUI toggle for Ashbranch Priority
-local ToggleAshbranch = Tab2:NewToggle("AFK Grind Ashen cliffs Priority", false, function(value)
-    ashbranchActive = value
-    if ashbranchActive then
-        -- Disable nearest enemy script if running
-        stopNearestEnemyScript()
+-- GUI Toggle for Ashbranch Priority (adjust as needed for your UI framework)
+local ToggleAshbranch = Tab2:NewToggle("AFK Grind Ashbranch Priority", false, function(value)
+    _G.ashbranchActive = value
+    if _G.ashbranchActive then
+        stopNearestEnemyScript() -- Disable nearest enemy script
 
         if ashbranchCoroutine and coroutine.status(ashbranchCoroutine) == "running" then return end
         startAshbranchCoroutine()
     else
-        ashbranchActive = false
+        _G.ashbranchActive = false
     end
 end)
+
 
 local player = game.Players.LocalPlayer
 local nearestEnemyCoroutine
