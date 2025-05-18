@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 
 
 library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.0 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.1 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
@@ -34,7 +34,7 @@ local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
 
 local vector = Vector3  -- Just an alias to keep it similar to your original format
 
-local function simulateFRTKeys()
+function simulateFRTKeys()
     -- Fire Spell1
     local args1 = {
         "Spell1",
