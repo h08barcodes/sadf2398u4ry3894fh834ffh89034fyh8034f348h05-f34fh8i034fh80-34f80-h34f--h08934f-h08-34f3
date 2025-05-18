@@ -286,31 +286,6 @@ end
 local player = game.Players.LocalPlayer
 local teleportCoroutine
 local teleportActive = false
-
-local function angerAllMobs(hrp, enemyFolder)
-    print("Started: Anger all mobs")
-
-    local visited = {}
-    local originalPos = hrp.CFrame
-
-    for _, obj in pairs(enemyFolder:GetDescendants()) do
-        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
-            local enemy = obj.Parent
-            if not visited[enemy] then
-                visited[enemy] = true
-                hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                task.wait(0.1)
-            end
-        end
-    end
-
-    hrp.CFrame = originalPos
-    print("Completed: Anger all mobs")
-end
-
-local player = game.Players.LocalPlayer
-local teleportCoroutine
-local teleportActive = false
 local teleportToggle = true
 
 local function angerAllMobs(hrp, enemyFolder)
@@ -325,7 +300,7 @@ local function angerAllMobs(hrp, enemyFolder)
             if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
                 visited[enemy] = true
                 hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                task.wait(0.1)
+                task.wait(0.05) -- Faster anger phase teleport
             end
         end
     end
@@ -338,20 +313,18 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
     teleportActive = value
 
     if teleportActive then
-        if teleportCoroutine and coroutine.status(teleportCoroutine) == "suspended" then
-            coroutine.resume(teleportCoroutine)
-            return
-        end
+        if teleportCoroutine and coroutine.status(teleportCoroutine) ~= "dead" then return end
 
         teleportCoroutine = coroutine.create(function()
-            local lastFoundEnemyTime = tick()
-            local lastAngerTime = tick()
+            local success, err = pcall(function()
+                local lastFoundEnemyTime = tick()
+                local lastAngerTime = tick()
 
-            while teleportActive do
-                local character = player.Character or player.CharacterAdded:Wait()
-                local hrp = character:FindFirstChild("HumanoidRootPart")
+                while teleportActive do
+                    local character = player.Character or player.CharacterAdded:Wait()
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if not hrp then task.wait(1) continue end
 
-                if hrp then
                     local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                     local validEnemies = {}
 
@@ -374,10 +347,9 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
 
                         local nearestEnemyHRP = validEnemies[1]
 
-                        -- Alternate between in front and behind the enemy
+                        -- Alternate position: 3 studs in front and behind, always on ground
                         local offset = teleportToggle and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
                         teleportToggle = not teleportToggle
-
                         hrp.CFrame = nearestEnemyHRP.CFrame * CFrame.new(offset)
 
                         local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -389,29 +361,32 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                             pcall(simulateFRTKeys)
                         end
                     else
-                        if tick() - lastFoundEnemyTime >= 3 then
+                        if tick() - lastFoundEnemyTime >= 1.5 then -- halved delay
                             lastFoundEnemyTime = tick()
                             angerAllMobs(hrp, enemyFolder)
                         end
                     end
 
-                    if tick() - lastAngerTime >= 20 then
+                    if tick() - lastAngerTime >= 10 then -- halved interval
                         lastAngerTime = tick()
                         angerAllMobs(hrp, enemyFolder)
                     end
-                end
 
-                task.wait(0.1)
+                    task.wait(0.05) -- faster loop
+                end
+            end)
+
+            if not success then
+                warn("AFK Grind Coroutine Error:", err)
             end
 
             teleportCoroutine = nil
         end)
 
         coroutine.resume(teleportCoroutine)
-    else
-        teleportCoroutine = nil
     end
 end)
+
 
 
 -- Input
