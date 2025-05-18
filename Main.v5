@@ -348,6 +348,90 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", true, function(va
 end)
 
 
+local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", true, function(value)
+    if value then
+        if runLoop then return end
+        runLoop = true
+
+        loopCoroutine = coroutine.create(function()
+            local player = game.Players.LocalPlayer
+
+            while runLoop do
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                local enemiesFolder = workspace:WaitForChild("Enemies")
+
+                local targetEnemyNames = {
+                    ["Fallen Elemental"] = true,
+                    ["Ashen Elemental"] = true
+                }
+
+                local function isValidEnemy(enemy)
+                    if not enemy:IsA("Model") then return false end
+                    if not targetEnemyNames[enemy.Name] then return false end
+                    if not enemy:FindFirstChild("HumanoidRootPart") then return false end
+                    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                    if humanoid and humanoid.Health <= 0 then return false end
+                    return true
+                end
+
+                local function findNearestEnemy()
+                    local nearestEnemy = nil
+                    local nearestDist = math.huge
+
+                    for _, enemy in ipairs(enemiesFolder:GetDescendants()) do
+                        if isValidEnemy(enemy) then
+                            local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                            if enemyHRP then
+                                local dist = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
+                                if dist < nearestDist then
+                                    nearestDist = dist
+                                    nearestEnemy = enemy
+                                end
+                            end
+                        end
+                    end
+
+                    return nearestEnemy
+                end
+
+                local teleportBehind = true
+
+                while runLoop do
+                    local enemy = findNearestEnemy()
+
+                    if enemy then
+                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                        if enemyHRP then
+                            local lookVector = enemyHRP.CFrame.LookVector
+                            local offset = teleportBehind and (-lookVector * 3) or (lookVector * 3)
+                            teleportBehind = not teleportBehind
+
+                            local newPos = enemyHRP.Position + offset + Vector3.new(0, 3, 0)
+                            humanoidRootPart.CFrame = CFrame.new(newPos, enemyHRP.Position)
+
+                            simulateFRTKeys()
+
+                            wait(0.05)
+                        else
+                            wait(0.25)
+                        end
+                    else
+                        wait(0.25)
+                    end
+                end
+            end
+        end)
+
+        coroutine.resume(loopCoroutine)
+
+    else
+        runLoop = false
+        loopCoroutine = nil
+    end
+end)
+
+
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(val)
