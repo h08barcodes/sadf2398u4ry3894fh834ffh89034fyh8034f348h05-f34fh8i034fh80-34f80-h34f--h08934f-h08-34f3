@@ -18,3 +18,4 @@ local Section1 = tab3:NewSection("Credits")
 local Label1 = tab3:NewSection("@errorgeorge on discord, very sigma ik")
 local Label2 = tab3:NewSection("Calm down ladies")
 
+local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
