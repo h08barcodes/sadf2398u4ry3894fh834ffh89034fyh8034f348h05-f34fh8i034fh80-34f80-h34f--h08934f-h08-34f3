@@ -12,7 +12,7 @@ if Players.LocalPlayer.Name == "GLITCHINGDOGE" then
 else 
     library.rank = "private"
 
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.5 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.7 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
