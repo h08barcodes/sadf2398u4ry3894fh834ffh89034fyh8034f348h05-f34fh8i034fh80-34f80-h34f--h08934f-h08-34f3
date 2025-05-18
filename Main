@@ -311,6 +311,7 @@ end
 local player = game.Players.LocalPlayer
 local teleportCoroutine
 local teleportActive = false
+local teleportToggle = true
 
 local function angerAllMobs(hrp, enemyFolder)
     print("Started: Anger all mobs")
@@ -337,7 +338,10 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
     teleportActive = value
 
     if teleportActive then
-        if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
+        if teleportCoroutine and coroutine.status(teleportCoroutine) == "suspended" then
+            coroutine.resume(teleportCoroutine)
+            return
+        end
 
         teleportCoroutine = coroutine.create(function()
             local lastFoundEnemyTime = tick()
@@ -369,8 +373,12 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                         end)
 
                         local nearestEnemyHRP = validEnemies[1]
-                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(3, -3, 0)
-                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new-3, -3, 0)
+
+                        -- Alternate between in front and behind the enemy
+                        local offset = teleportToggle and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
+                        teleportToggle = not teleportToggle
+
+                        hrp.CFrame = nearestEnemyHRP.CFrame * CFrame.new(offset)
 
                         local humanoid = character:FindFirstChildOfClass("Humanoid")
                         if humanoid then
@@ -400,8 +408,11 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         end)
 
         coroutine.resume(teleportCoroutine)
+    else
+        teleportCoroutine = nil
     end
 end)
+
 
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
