@@ -28,6 +28,23 @@ local function getPlayerNames()
     end
     return playerNames
 end
+local function teleportToGroundAbove(cframe)
+    local origin = cframe.Position + Vector3.new(0, 10, 0)
+    local direction = Vector3.new(0, -50, 0)
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {workspace.Ignore} -- Optional: add parts to ignore
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    local result = workspace:Raycast(origin, direction, params)
+
+    local targetPosition
+    if result then
+        targetPosition = result.Position + Vector3.new(0, 3, 0)
+    else
+        targetPosition = cframe.Position + Vector3.new(0, 3, 0)
+    end
+
+    return CFrame.new(targetPosition, cframe.Position + cframe.LookVector)
+end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
@@ -265,6 +282,10 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
 
         teleportCoroutine = coroutine.create(function()
+            local lastFoundEnemyTime = tick()
+            local lastPeriodicActionTime = tick()
+            local player = game.Players.LocalPlayer
+
             while teleportActive do
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:FindFirstChild("HumanoidRootPart")
@@ -273,10 +294,11 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                 local validEnemies = {}
 
-                for _, enemy in pairs(enemyFolder:GetChildren()) do
-                    if enemy:IsA("Model") and enemy.Name ~= "Defeated" then
-                        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
+                for _, model in pairs(enemyFolder:GetChildren()) do
+                    if model:IsA("Model") and model.Name ~= "Defeated" then
+                        local humanoid = model:FindFirstChildOfClass("Humanoid", true)
+                        local enemyHRP = model:FindFirstChild("HumanoidRootPart", true)
+
                         if humanoid and humanoid.Health > 0 and enemyHRP then
                             table.insert(validEnemies, enemyHRP)
                         end
@@ -284,16 +306,46 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 end
 
                 if #validEnemies > 0 then
+                    lastFoundEnemyTime = tick()
+
                     table.sort(validEnemies, function(a, b)
                         return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                     end)
 
                     local nearestEnemyHRP = validEnemies[1]
-                    hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
+                    hrp.CFrame = teleportToGroundAbove(nearestEnemyHRP.CFrame)
 
                     if simulateFRTKeys then
                         pcall(simulateFRTKeys)
                     end
+                else
+                    if tick() - lastFoundEnemyTime >= 3 then
+                        lastFoundEnemyTime = tick()
+                        print("Started: Anger all mobs")
+
+                        local visited = {}
+                        local originalPos = hrp.CFrame
+
+                        for _, obj in pairs(enemyFolder:GetDescendants()) do
+                            if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
+                                local enemy = obj.Parent
+                                if not visited[enemy] then
+                                    visited[enemy] = true
+                                    hrp.CFrame = teleportToGroundAbove(obj.CFrame)
+                                    task.wait(0.1)
+                                end
+                            end
+                        end
+
+                        hrp.CFrame = teleportToGroundAbove(originalPos)
+                        print("Completed: Anger all mobs")
+                    end
+                end
+
+                if tick() - lastPeriodicActionTime >= 20 then
+                    lastPeriodicActionTime = tick()
+                    print("Periodic 20s code running...")
+                    -- You can put any server event or logic here
                 end
 
                 task.wait(0.1)
