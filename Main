@@ -7,7 +7,14 @@ local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
 
-library.rank = "developer"
+
+local rankTable = {
+    ["GLITCHINGDOGE"] = "developer",
+    ["T_Thebedwasgod"] = "admin",
+    ["ModPerson"] = "moderator",
+}
+
+library.rank = rankTable[LocalPlayer.Name]
 
 local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.5 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
