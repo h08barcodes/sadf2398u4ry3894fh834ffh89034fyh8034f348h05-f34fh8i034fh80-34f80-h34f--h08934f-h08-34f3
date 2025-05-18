@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 
 
 library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.1 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.2 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
@@ -258,12 +258,6 @@ local function simulateFRTKeys()
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
 --------------------------------------------------
--- Example global function definition (place this somewhere accessible)
-function simulateFRTKeys()
-    -- Your actual key simulation code here
-    print("simulateFRTKeys() called")
-end
-
 local runLoop = false
 local loopCoroutine = nil
 
