@@ -369,7 +369,8 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                         end)
 
                         local nearestEnemyHRP = validEnemies[1]
-                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, -3, 0)
+                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(3, -3, 0)
+                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new-3, -3, 0)
 
                         local humanoid = character:FindFirstChildOfClass("Humanoid")
                         if humanoid then
