@@ -370,12 +370,89 @@ local function startNearestEnemyCoroutine()
     coroutine.resume(nearestEnemyCoroutine)
 end
 
+local function startNearestEnemyCoroutinew()
+    _G.nearestEnemyActive = true
+    nearestEnemyCoroutine = coroutine.create(function()
+        local lastFoundEnemyTime = tick()
+        local lastAngerTime = tick()
+
+        while _G.nearestEnemyActive do
+            local character = player.Character
+            if not character or not character.Parent then
+                character = player.CharacterAdded:Wait()
+            end
+
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+                local validEnemies = {}
+
+                for _, obj in pairs(enemyFolder:GetDescendants()) do
+                    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+                        local enemy = obj:FindFirstAncestorOfClass("Model")
+                        if isValidEnemy(enemy) then
+                            table.insert(validEnemies, obj)
+                        end
+                    end
+                end
+
+                if #validEnemies > 0 then
+                    lastFoundEnemyTime = tick()
+
+                    table.sort(validEnemies, function(a, b)
+                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
+                    end)
+
+                    local nearest = validEnemies[1]
+                    local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
+                    flip = not flip
+
+                    hrp.CFrame = nearest.CFrame + offset
+
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                    end
+
+                    if simulateFRTKeys then
+                        pcall(simulateFRTKeys)
+                    end
+                else
+                    if tick() - lastFoundEnemyTime >= 1.5 then
+                        lastFoundEnemyTime = tick()
+                        angerAllMobs(hrp, enemyFolder)
+                    end
+                end
+
+                if tick() - lastAngerTime >= 10000 then
+                    lastAngerTime = tick()
+                    angerAllMobs(hrp, enemyFolder)
+                end
+            end
+
+            task.wait(0.05)
+        end
+
+        nearestEnemyCoroutine = nil
+    end)
+
+    coroutine.resume(nearestEnemyCoroutine)
+end
 -- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
 local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     if value then
-        stopAshbranchScript() -- disable ashbranch script if enabled
         if _G.nearestEnemyActive then return end
         startNearestEnemyCoroutine()
+    else
+        _G.nearestEnemyActive = false
+    end
+end)
+
+-- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
+local ToggleNearestEnemyW = Tab2:NewToggle("AFK Grind Nearest Alive Enemy No Anger", false, function(value)
+    if value then
+        if _G.nearestEnemyActive then return end
+        startNearestEnemyCoroutinew()
     else
         _G.nearestEnemyActive = false
     end
