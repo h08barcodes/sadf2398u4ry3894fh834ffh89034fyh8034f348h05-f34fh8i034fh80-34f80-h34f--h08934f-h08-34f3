@@ -284,24 +284,27 @@ local function angerAllMobs(hrp, enemyFolder)
     hrp.CFrame = originalPos
     print("Completed: Anger all mobs")
 end
-
 local function isValidEnemy(enemy)
-    if not enemy then return false end
+    if not enemy or not enemy:IsA("Model") then return false end
     if enemy.Name == "Defeated" then return false end
-    if enemy:FindFirstChild("VoidspawnSerpentHitbox") then return false end
 
+    -- Exclude the actual VoidspawnSerpentHitbox model itself
+    if enemy.Name == "VoidspawnSerpentHitbox" then return false end
+
+    -- Normal enemies with working Humanoids
     local humanoid = enemy:FindFirstChildOfClass("Humanoid")
     if humanoid and humanoid.Health > 0 then
         return true
     end
 
-    -- Allow "Voidforged Gladiator" only if it has no VoidspawnSerpentHitbox and has a HumanoidRootPart
+    -- Exception: Include Voidforged Gladiator even without Humanoid
     if enemy.Name == "Voidforged Gladiator" and enemy:FindFirstChild("HumanoidRootPart") then
         return true
     end
 
     return false
 end
+
 
 local function stopAshbranchScript()
     if _G.ashbranchActive then
