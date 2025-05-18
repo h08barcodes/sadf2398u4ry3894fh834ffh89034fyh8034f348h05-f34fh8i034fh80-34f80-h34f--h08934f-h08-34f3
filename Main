@@ -291,14 +291,26 @@ local function startAshbranchCoroutine()
             if hrp then
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
 
-                local ashbranchHRP = enemyFolder:FindFirstChild("Ashbranch") 
-                    and enemyFolder.Ashbranch:FindFirstChild("HumanoidRootPart")
+                local ashbranchFolder = enemyFolder:FindFirstChild("Ashbranch")
+                if not ashbranchFolder then
+                    print("Ashbranch folder not found")
+                end
+                local ashbranchHRP = ashbranchFolder and ashbranchFolder:FindFirstChild("HumanoidRootPart")
+                print("Ashbranch HRP found:", ashbranchHRP ~= nil)
+                
                 local ashbranchEnemy = ashbranchHRP and ashbranchHRP:FindFirstAncestorOfClass("Model")
+
+                if ashbranchEnemy then
+                    print("Ashbranch enemy model found:", ashbranchEnemy.Name)
+                else
+                    print("Ashbranch enemy model NOT found")
+                end
 
                 if ashbranchEnemy and isValidEnemy(ashbranchEnemy) then
                     local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
                     flip = not flip
 
+                    print("Teleporting to Ashbranch at", ashbranchHRP.Position)
                     hrp.CFrame = ashbranchHRP.CFrame + offset
 
                     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -310,8 +322,11 @@ local function startAshbranchCoroutine()
                         pcall(simulateFRTKeys)
                     end
                 else
+                    print("Ashbranch enemy invalid or not present")
                     task.wait(0.5)
                 end
+            else
+                print("Player HRP not found")
             end
 
             task.wait(0.05)
@@ -322,6 +337,7 @@ local function startAshbranchCoroutine()
 
     coroutine.resume(ashbranchCoroutine)
 end
+
 
 -- GUI Toggle for Ashbranch Priority (adjust for your UI)
 local ToggleAshbranch = Tab2:NewToggle("AFK Grind Ashbranch Priority", false, function(value)
