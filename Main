@@ -309,8 +309,9 @@ local function angerAllMobs(hrp, enemyFolder)
 end
 
 local function teleportToGroundAbove(cframe)
-    local origin = cframe.Position + Vector3.new(0, 5, 0)
-    local direction = Vector3.new(0, -100, 0)
+    local origin = cframe.Position + Vector3.new(0, 10, 0)
+    local direction = Vector3.new(0, -50, 0)
+    
     local rayParams = RaycastParams.new()
     rayParams.FilterDescendantsInstances = {player.Character}
     rayParams.FilterType = Enum.RaycastFilterType.Blacklist
@@ -319,13 +320,14 @@ local function teleportToGroundAbove(cframe)
     local result = workspace:Raycast(origin, direction, rayParams)
 
     if result and result.Position then
-        -- place just above the ground hit
+        -- Hit something: go 3 studs above ground
         return CFrame.new(result.Position + Vector3.new(0, 3, 0))
     else
-        -- fallback to original +3
+        -- Didn't hit ground: fall back to floating
         return cframe + Vector3.new(0, 3, 0)
     end
 end
+
 
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     teleportActive = value
