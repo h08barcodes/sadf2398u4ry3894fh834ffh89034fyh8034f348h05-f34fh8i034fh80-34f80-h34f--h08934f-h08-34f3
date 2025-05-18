@@ -291,24 +291,28 @@ local excludedEnemyNames = {
 local function isValidEnemy(enemy)
     if not enemy or not enemy:IsA("Model") then return false end
 
-    if excludedEnemyNames[enemy.Name] then
-        print("Skipping excluded enemy:", enemy.Name)
+    -- Skip only the enemy MODEL named exactly "VoidspawnSerpentHitbox"
+    if enemy.Name == "VoidspawnSerpentHitbox" then
         return false
     end
 
+    -- Skip defeated enemies
     if enemy.Name == "Defeated" then return false end
 
+    -- Check for a Humanoid and make sure it's alive
     local humanoid = enemy:FindFirstChildOfClass("Humanoid")
     if humanoid and humanoid.Health > 0 then
         return true
     end
 
+    -- Allow Voidforged Gladiator even if it's missing a humanoid (rare edge case)
     if enemy.Name == "Voidforged Gladiator" and enemy:FindFirstChild("HumanoidRootPart") then
         return true
     end
 
     return false
 end
+
 
 
 
