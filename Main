@@ -362,7 +362,7 @@ local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", false, func
 
                 local targetEnemyNames = {
                     ["Fallen Elemental"] = true,
-                    ["Ashen Elemental"] = true
+                    ["Ashen Elemental"] = true,
                     ["Ashen Strongbox"] = true
                 }
 
