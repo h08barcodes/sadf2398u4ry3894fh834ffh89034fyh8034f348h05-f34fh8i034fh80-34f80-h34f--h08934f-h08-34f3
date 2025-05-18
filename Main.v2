@@ -257,96 +257,102 @@ local function simulateFRTKeys()
     wait(0.1)
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
+--------------------------------------------------
+local runLoop = false
+local loopCoroutine = nil
+
 local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
-    -- Variables for control
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    local enemiesFolder = workspace:WaitForChild("Enemies")
-
-    local excludedNames = {
-        "Total",
-        "EnemiesRemaining",
-        "Defeated",
-        "VoidspawnSerpentHitbox"
-    }
-
-    -- Check if enemy is valid
-    local function isValidEnemy(enemy)
-        if not enemy:IsA("Model") then return false end
-        if table.find(excludedNames, enemy.Name) then return false end
-        if not enemy:FindFirstChild("HumanoidRootPart") then return false end
-        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-        if humanoid and humanoid.Health <= 0 then return false end
-        return true
+    -- Function to simulate your keys after teleport
+    local function simulateFRTKeys()
+        -- Your implementation here; just a placeholder example:
+        print("simulateFRTKeys() called")
+        -- Add your actual simulateFRTKeys code here
     end
 
-    -- Find nearest enemy function
-    local function findNearestEnemy()
-        local nearestEnemy = nil
-        local nearestDist = math.huge
+    if value then
+        -- Start the loop if not already running
+        if runLoop then return end
+        runLoop = true
 
-        for _, enemy in pairs(enemiesFolder:GetChildren()) do
-            if isValidEnemy(enemy) then
-                local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
-                if enemyHRP then
-                    local dist = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
-                    if dist < nearestDist then
-                        nearestDist = dist
-                        nearestEnemy = enemy
-                    end
-                end
-            end
-        end
+        loopCoroutine = coroutine.create(function()
+            local player = game.Players.LocalPlayer
 
-        return nearestEnemy
-    end
-
-    -- Control variables
-    local teleportBehind = true
-    local runLoop = value -- true if toggle is enabled
-
-    -- Run the loop in a coroutine to allow toggling off
-    local co
-    if runLoop then
-        co = coroutine.create(function()
             while runLoop do
-                -- Update character in case of respawn
-                character = player.Character or player.CharacterAdded:Wait()
-                humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                local enemiesFolder = workspace:WaitForChild("Enemies")
 
-                local enemy = findNearestEnemy()
-                if enemy then
-                    local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
-                    if enemyHRP then
-                        local lookVector = enemyHRP.CFrame.LookVector
+                local excludedNames = {
+                    "Total",
+                    "EnemiesRemaining",
+                    "Defeated",
+                    "VoidspawnSerpentHitbox"
+                }
 
-                        local offset
-                        if teleportBehind then
-                            offset = -lookVector * 3
-                        else
-                            offset = lookVector * 3
+                local function isValidEnemy(enemy)
+                    if not enemy:IsA("Model") then return false end
+                    if table.find(excludedNames, enemy.Name) then return false end
+                    if not enemy:FindFirstChild("HumanoidRootPart") then return false end
+                    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                    if humanoid and humanoid.Health <= 0 then return false end
+                    return true
+                end
+
+                local function findNearestEnemy()
+                    local nearestEnemy = nil
+                    local nearestDist = math.huge
+
+                    for _, enemy in pairs(enemiesFolder:GetChildren()) do
+                        if isValidEnemy(enemy) then
+                            local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                            if enemyHRP then
+                                local dist = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
+                                if dist < nearestDist then
+                                    nearestDist = dist
+                                    nearestEnemy = enemy
+                                end
+                            end
                         end
-
-                        teleportBehind = not teleportBehind
-
-                        local newPos = enemyHRP.Position + offset + Vector3.new(0, 3, 0)
-                        humanoidRootPart.CFrame = CFrame.new(newPos, enemyHRP.Position)
-
-                        wait(0.05) -- half of 0.1s
                     end
-                else
-                    wait(0.5) -- half of 1s
+
+                    return nearestEnemy
+                end
+
+                local teleportBehind = true
+
+                -- Inner loop for the actual teleporting, breaks if runLoop is false
+                while runLoop do
+                    local enemy = findNearestEnemy()
+
+                    if enemy then
+                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                        if enemyHRP then
+                            local lookVector = enemyHRP.CFrame.LookVector
+                            local offset = teleportBehind and (-lookVector * 3) or (lookVector * 3)
+                            teleportBehind = not teleportBehind
+
+                            local newPos = enemyHRP.Position + offset + Vector3.new(0, 3, 0)
+                            humanoidRootPart.CFrame = CFrame.new(newPos, enemyHRP.Position)
+
+                            simulateFRTKeys()
+
+                            wait(0.05)
+                        else
+                            wait(0.5)
+                        end
+                    else
+                        wait(0.5)
+                    end
                 end
             end
         end)
-        coroutine.resume(co)
-    end
 
-    -- If toggle is turned off, stop the loop by setting runLoop false
-    if not runLoop and co then
+        coroutine.resume(loopCoroutine)
+
+    else
+        -- Stop the loop
         runLoop = false
+        loopCoroutine = nil
     end
 end)
 
