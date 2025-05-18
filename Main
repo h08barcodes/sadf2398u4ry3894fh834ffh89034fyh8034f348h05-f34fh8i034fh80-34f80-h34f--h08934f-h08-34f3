@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 
 
 library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.1.3 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.4 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
@@ -34,7 +34,7 @@ local SpellEvent = ReplicatedStorage:WaitForChild("Spell")
 
 local vector = Vector3  -- Just an alias to keep it similar to your original format
 
-local function simulateFRTKeys()
+function simulateFRTKeys()
     -- Fire Spell1
     local args1 = {
         "Spell1",
@@ -258,16 +258,10 @@ local function simulateFRTKeys()
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
 --------------------------------------------------
--- Example global function definition (place this somewhere accessible)
-function simulateFRTKeys()
-    -- Your actual key simulation code here
-    print("simulateFRTKeys() called")
-end
-
 local runLoop = false
 local loopCoroutine = nil
 
-local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", false, function(value)
     if value then
         if runLoop then return end
         runLoop = true
@@ -350,6 +344,197 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false
     else
         runLoop = false
         loopCoroutine = nil
+    end
+end)
+
+
+local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", false, function(value)
+    if value then
+        if runLoop then return end
+        runLoop = true
+
+        loopCoroutine = coroutine.create(function()
+            local player = game.Players.LocalPlayer
+
+            while runLoop do
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                local enemiesFolder = workspace:WaitForChild("Enemies")
+
+                local targetEnemyNames = {
+                    ["Fallen Elemental"] = true,
+                    ["Ashen Elemental"] = true
+                }
+
+                local function isValidEnemy(enemy)
+                    if not enemy:IsA("Model") then return false end
+                    if not targetEnemyNames[enemy.Name] then return false end
+                    if not enemy:FindFirstChild("HumanoidRootPart") then return false end
+                    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                    if humanoid and humanoid.Health <= 0 then return false end
+                    return true
+                end
+
+                local function findNearestEnemy()
+                    local nearestEnemy = nil
+                    local nearestDist = math.huge
+
+                    for _, enemy in ipairs(enemiesFolder:GetDescendants()) do
+                        if isValidEnemy(enemy) then
+                            local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                            if enemyHRP then
+                                local dist = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
+                                if dist < nearestDist then
+                                    nearestDist = dist
+                                    nearestEnemy = enemy
+                                end
+                            end
+                        end
+                    end
+
+                    return nearestEnemy
+                end
+
+                local teleportBehind = true
+
+                while runLoop do
+                    local enemy = findNearestEnemy()
+
+                    if enemy then
+                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                        if enemyHRP then
+                            local lookVector = enemyHRP.CFrame.LookVector
+                            local offset = teleportBehind and (-lookVector * 3) or (lookVector * 3)
+                            teleportBehind = not teleportBehind
+
+                            local newPos = enemyHRP.Position + offset + Vector3.new(0, 3, 0)
+                            humanoidRootPart.CFrame = CFrame.new(newPos, enemyHRP.Position)
+
+                            simulateFRTKeys()
+
+                            wait(0.05)
+                        else
+                            wait(0.25)
+                        end
+                    else
+                        wait(0.25)
+                    end
+                end
+            end
+        end)
+
+        coroutine.resume(loopCoroutine)
+
+    else
+        runLoop = false
+        loopCoroutine = nil
+    end
+end)
+
+local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", false, function(value)
+    if value then
+        if runFullFarm then return end
+        runFullFarm = true
+
+        coroutine.wrap(function()
+            local player = game.Players.LocalPlayer
+
+            local function isTargetEnemy(enemy)
+                if not enemy:IsA("Model") then return false end
+                if not (enemy.Name == "Fallen Elemental" or enemy.Name == "Ashen Elemental") then return false end
+                local hrp = enemy:FindFirstChild("HumanoidRootPart")
+                local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                if not hrp or not humanoid or humanoid.Health <= 0 then return false end
+                return true
+            end
+
+            local function findNearestTargetEnemy()
+                local nearestEnemy = nil
+                local nearestDist = math.huge
+                local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+                for _, enemy in ipairs(workspace.Enemies:GetDescendants()) do
+                    if isTargetEnemy(enemy) then
+                        local hrp = enemy:FindFirstChild("HumanoidRootPart")
+                        if hrp and rootPart then
+                            local dist = (rootPart.Position - hrp.Position).Magnitude
+                            if dist < nearestDist then
+                                nearestDist = dist
+                                nearestEnemy = enemy
+                            end
+                        end
+                    end
+                end
+
+                return nearestEnemy
+            end
+
+            local teleportBehind = true
+            local lastBossCheckMinute = -1
+
+            while runFullFarm do
+                local time = os.date("*t")
+                local minute = time.min
+                local second = time.sec
+
+                -- Trigger only once at the start of 0 or 30 minutes
+                if (minute == 0 or minute == 30) and minute ~= lastBossCheckMinute then
+                    lastBossCheckMinute = minute
+
+                    -- Step 1: Wait 1 minute
+                    wait(60)
+
+                    -- Step 2: Teleport to boss pre-spawn location
+                    local char = player.Character or player.CharacterAdded:Wait()
+                    local root = char:WaitForChild("HumanoidRootPart")
+                    root.CFrame = CFrame.new(-365, 12.792820930480957, 110)
+                    wait(1) -- Give time to load
+
+                    -- Step 3: Wait second minute for boss to spawn
+                    wait(60)
+
+                    -- Step 4: Wait until boss spawns and fight until 'Defeated' is found
+                    while runFullFarm do
+                        if workspace.Enemies:FindFirstChild("Defeated") then
+                            break -- Boss defeated
+                        end
+
+                        local boss = workspace.Enemies:FindFirstChild("Ashbranch")
+                        if boss and boss:FindFirstChild("HumanoidRootPart") then
+                            local hrp = boss.HumanoidRootPart
+                            root.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0), hrp.Position)
+                            simulateFRTKeys()
+                        end
+
+                        wait(0.5)
+                    end
+                else
+                    -- Regular farming loop
+                    local char = player.Character or player.CharacterAdded:Wait()
+                    local root = char:WaitForChild("HumanoidRootPart")
+
+                    local enemy = findNearestTargetEnemy()
+                    if enemy then
+                        local hrp = enemy:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local lookVector = hrp.CFrame.LookVector
+                            local offset = teleportBehind and (-lookVector * 3) or (lookVector * 3)
+                            teleportBehind = not teleportBehind
+
+                            root.CFrame = CFrame.new(hrp.Position + offset + Vector3.new(0, 3, 0), hrp.Position)
+                            simulateFRTKeys()
+                            wait(0.05)
+                        else
+                            wait(0.25)
+                        end
+                    else
+                        wait(0.25)
+                    end
+                end
+            end
+        end)()
+    else
+        runFullFarm = false
     end
 end)
 
@@ -617,7 +802,7 @@ end
 Players.PlayerAdded:Connect(updateSelector)
 Players.PlayerRemoving:Connect(updateSelector)
 local Button5 = Tab1:NewButton("Refresh script", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main"))()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main"))()
 end)
 
 
