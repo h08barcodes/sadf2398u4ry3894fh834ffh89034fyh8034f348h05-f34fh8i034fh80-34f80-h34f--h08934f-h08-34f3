@@ -346,49 +346,50 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
             while teleportActive do
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:FindFirstChild("HumanoidRootPart")
-                if not hrp then task.wait(1) continue end
 
-                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-                local validEnemies = {}
+                if hrp then
+                    local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+                    local validEnemies = {}
 
-                for _, enemy in pairs(enemyFolder:GetChildren()) do
-                    if enemy:IsA("Model") and enemy.Name ~= "Defeated" and enemy.Name ~= "VoidspawnSerpentHitbox" then
-                        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
-                        if humanoid and humanoid.Health > 0 and enemyHRP then
-                            table.insert(validEnemies, enemyHRP)
+                    for _, enemy in pairs(enemyFolder:GetChildren()) do
+                        if enemy:IsA("Model") and enemy.Name ~= "Defeated" and enemy.Name ~= "VoidspawnSerpentHitbox" then
+                            local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                            local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
+                            if humanoid and humanoid.Health > 0 and enemyHRP then
+                                table.insert(validEnemies, enemyHRP)
+                            end
                         end
                     end
-                end
 
-                if #validEnemies > 0 then
-                    lastFoundEnemyTime = tick()
-
-                    table.sort(validEnemies, function(a, b)
-                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
-                    end)
-
-                    local nearestEnemyHRP = validEnemies[1]
-                    hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
-
-                    local humanoid = character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
-                    end
-
-                    if simulateFRTKeys then
-                        pcall(simulateFRTKeys)
-                    end
-                else
-                    if tick() - lastFoundEnemyTime >= 3 then
+                    if #validEnemies > 0 then
                         lastFoundEnemyTime = tick()
+
+                        table.sort(validEnemies, function(a, b)
+                            return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
+                        end)
+
+                        local nearestEnemyHRP = validEnemies[1]
+                        hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, -3, 0)
+
+                        local humanoid = character:FindFirstChildOfClass("Humanoid")
+                        if humanoid then
+                            humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                        end
+
+                        if simulateFRTKeys then
+                            pcall(simulateFRTKeys)
+                        end
+                    else
+                        if tick() - lastFoundEnemyTime >= 3 then
+                            lastFoundEnemyTime = tick()
+                            angerAllMobs(hrp, enemyFolder)
+                        end
+                    end
+
+                    if tick() - lastAngerTime >= 20 then
+                        lastAngerTime = tick()
                         angerAllMobs(hrp, enemyFolder)
                     end
-                end
-
-                if tick() - lastAngerTime >= 20 then
-                    lastAngerTime = tick()
-                    angerAllMobs(hrp, enemyFolder)
                 end
 
                 task.wait(0.1)
