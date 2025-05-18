@@ -7,10 +7,7 @@ local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
 
-if local Players == "GLITCHINGDOGE" then
-    library.rank = "developer" 
-else 
-    library.rank = "private"
+library.rank = "private"
 
 local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.5 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
