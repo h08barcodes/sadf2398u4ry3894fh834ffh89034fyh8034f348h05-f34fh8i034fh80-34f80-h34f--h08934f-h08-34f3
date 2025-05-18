@@ -295,15 +295,16 @@ local function angerAllMobs(hrp, enemyFolder)
     local originalPos = hrp.CFrame
 
     for _, obj in pairs(enemyFolder:GetDescendants()) do
-        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
-            local enemy = obj.Parent
-            if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
-                visited[enemy] = true
-                hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                task.wait(0.05) -- Faster anger phase teleport
-            end
+    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent and obj.Parent:FindFirstChild("Humanoid") then
+        local enemy = obj.Parent
+        if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
+            visited[enemy] = true
+            hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+            task.wait(0.05)
         end
     end
+end
+
 
     hrp.CFrame = originalPos
     print("Completed: Anger all mobs")
