@@ -258,19 +258,17 @@ local function simulateFRTKeys()
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
 --------------------------------------------------
+-- Example global function definition (place this somewhere accessible)
+function simulateFRTKeys()
+    -- Your actual key simulation code here
+    print("simulateFRTKeys() called")
+end
+
 local runLoop = false
 local loopCoroutine = nil
 
 local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
-    -- Function to simulate your keys after teleport
-    local function simulateFRTKeys()
-        -- Your implementation here; just a placeholder example:
-        print("simulateFRTKeys() called")
-        -- Add your actual simulateFRTKeys code here
-    end
-
     if value then
-        -- Start the loop if not already running
         if runLoop then return end
         runLoop = true
 
@@ -320,7 +318,6 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false
 
                 local teleportBehind = true
 
-                -- Inner loop for the actual teleporting, breaks if runLoop is false
                 while runLoop do
                     local enemy = findNearestEnemy()
 
@@ -334,6 +331,7 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false
                             local newPos = enemyHRP.Position + offset + Vector3.new(0, 3, 0)
                             humanoidRootPart.CFrame = CFrame.new(newPos, enemyHRP.Position)
 
+                            -- Call the global simulateFRTKeys function here
                             simulateFRTKeys()
 
                             wait(0.05)
@@ -350,7 +348,6 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false
         coroutine.resume(loopCoroutine)
 
     else
-        -- Stop the loop
         runLoop = false
         loopCoroutine = nil
     end
