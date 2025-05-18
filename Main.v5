@@ -10,7 +10,7 @@ local damageBlockerToggle = false
 
 
 library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.3 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.4 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
@@ -261,7 +261,7 @@ end
 local runLoop = false
 local loopCoroutine = nil
 
-local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", true, function(value)
+local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", false, function(value)
     if value then
         if runLoop then return end
         runLoop = true
@@ -348,7 +348,7 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", true, function(va
 end)
 
 
-local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", true, function(value)
+local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", false, function(value)
     if value then
         if runLoop then return end
         runLoop = true
