@@ -7,11 +7,10 @@ local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
 
-
 local rankTable = {
     ["GLITCHINGDOGE"] = "developer",
-    ["T_Thebedwasgod"] = "admin",
-    ["ModPerson"] = "moderator",
+    [""] = "admin",
+    [""] = "moderator",
 }
 
 library.rank = rankTable[LocalPlayer.Name]
