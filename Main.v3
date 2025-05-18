@@ -617,7 +617,7 @@ end
 Players.PlayerAdded:Connect(updateSelector)
 Players.PlayerRemoving:Connect(updateSelector)
 local Button5 = Tab1:NewButton("Refresh script", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Main.v3"))()
 end)
 
 
