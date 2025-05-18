@@ -266,15 +266,17 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         local origin = cframe.Position + Vector3.new(0, 10, 0)
         local direction = Vector3.new(0, -50, 0)
         local params = RaycastParams.new()
-        params.FilterDescendantsInstances = {workspace.Ignore} -- add parts to ignore if needed
+        params.FilterDescendantsInstances = {workspace.Ignore} -- optional
         params.FilterType = Enum.RaycastFilterType.Blacklist
         local result = workspace:Raycast(origin, direction, params)
 
         local targetPosition
         if result then
             targetPosition = result.Position + Vector3.new(0, 3, 0)
+            print("Raycast hit ground at:", targetPosition)
         else
             targetPosition = cframe.Position + Vector3.new(0, 3, 0)
+            print("Raycast missed, teleporting above original pos at:", targetPosition)
         end
 
         return CFrame.new(targetPosition, cframe.Position + cframe.LookVector)
@@ -291,14 +293,16 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 local enemy = obj.Parent
                 if not visited[enemy] then
                     visited[enemy] = true
-                    hrp.CFrame = teleportToGroundAbove(obj.CFrame)
+                    local targetCFrame = teleportToGroundAbove(obj.CFrame)
+                    print("Teleporting to mob at:", targetCFrame.Position)
+                    hrp.CFrame = targetCFrame
                     task.wait(0.1)
                 end
             end
         end
 
         hrp.CFrame = teleportToGroundAbove(originalPos)
-        print("Completed: Anger all mobs")
+        print("Completed: Anger all mobs, returned to original position")
     end
 
     if teleportActive then
@@ -313,7 +317,11 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
             while teleportActive do
                 local character = player.Character or player.CharacterAdded:Wait()
                 local hrp = character:FindFirstChild("HumanoidRootPart")
-                if not hrp then task.wait(1) continue end
+                if not hrp then
+                    print("No HumanoidRootPart found, waiting...")
+                    task.wait(1)
+                    continue
+                end
 
                 local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                 local validEnemies = {}
@@ -333,26 +341,25 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                 if #validEnemies > 0 then
                     lastFoundEnemyTime = tick()
 
-                    -- Sort by distance
                     table.sort(validEnemies, function(a, b)
                         return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                     end)
 
                     local nearestEnemyHRP = validEnemies[1]
-                    hrp.CFrame = teleportToGroundAbove(nearestEnemyHRP.CFrame)
+                    local targetCFrame = teleportToGroundAbove(nearestEnemyHRP.CFrame)
+                    print("Teleporting to nearest enemy at:", targetCFrame.Position)
+                    hrp.CFrame = targetCFrame
 
                     if simulateFRTKeys then
                         pcall(simulateFRTKeys)
                     end
                 else
-                    -- No enemies found for 3 seconds, anger all mobs
                     if tick() - lastFoundEnemyTime >= 3 then
                         lastFoundEnemyTime = tick()
                         angerAllMobs(hrp, enemyFolder)
                     end
                 end
 
-                -- Every 20 seconds anger all mobs regardless
                 if tick() - lastAngerTime >= 20 then
                     lastAngerTime = tick()
                     angerAllMobs(hrp, enemyFolder)
@@ -365,8 +372,12 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         end)
 
         coroutine.resume(teleportCoroutine)
+    else
+        -- If toggled off, make sure coroutine is nil so it can be restarted later
+        teleportCoroutine = nil
     end
 end)
+
 
 
 
