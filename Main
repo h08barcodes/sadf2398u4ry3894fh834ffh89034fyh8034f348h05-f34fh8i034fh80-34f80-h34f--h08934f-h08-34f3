@@ -259,98 +259,6 @@ local function simulateFRTKeys()
 end
 
 local player = game.Players.LocalPlayer
-local ashbranchCoroutine
-local flip = true
-
-_G.ashbranchActive = false -- global flag to sync with other script
-
-local function isValidEnemy(enemy)
-    if not enemy then return false end
-    if enemy.Name == "Defeated" then return false end
-    if enemy:FindFirstChild("VoidspawnSerpentHitbox") then return false end
-    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-    if not humanoid or humanoid.Health <= 0 then return false end
-    return true
-end
-
-local function stopNearestEnemyScript()
-    if _G.nearestEnemyActive then
-        _G.nearestEnemyActive = false
-    end
-end
-
-local function startAshbranchCoroutine()
-    ashbranchCoroutine = coroutine.create(function()
-        while _G.ashbranchActive do
-            local character = player.Character
-            if not character or not character.Parent then
-                character = player.CharacterAdded:Wait()
-            end
-
-            local hrp = character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-
-                local ashbranchFolder = enemyFolder:FindFirstChild("Ashbranch")
-                if not ashbranchFolder then
-                    print("Ashbranch folder not found")
-                end
-                local ashbranchHRP = ashbranchFolder and ashbranchFolder:FindFirstChild("HumanoidRootPart")
-                print("Ashbranch HRP found:", ashbranchHRP ~= nil)
-                
-                local ashbranchEnemy = ashbranchHRP and ashbranchHRP:FindFirstAncestorOfClass("Model")
-
-                if ashbranchEnemy then
-                    print("Ashbranch enemy model found:", ashbranchEnemy.Name)
-                else
-                    print("Ashbranch enemy model NOT found")
-                end
-
-                if ashbranchEnemy and isValidEnemy(ashbranchEnemy) then
-                    local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
-                    flip = not flip
-
-                    print("Teleporting to Ashbranch at", ashbranchHRP.Position)
-                    hrp.CFrame = ashbranchHRP.CFrame + offset
-
-                    local humanoid = character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
-                    end
-
-                    if simulateFRTKeys then
-                        pcall(simulateFRTKeys)
-                    end
-                else
-                    print("Ashbranch enemy invalid or not present")
-                    task.wait(0.5)
-                end
-            else
-                print("Player HRP not found")
-            end
-
-            task.wait(0.05)
-        end
-
-        ashbranchCoroutine = nil
-    end)
-
-    coroutine.resume(ashbranchCoroutine)
-end
-
-
--- GUI Toggle for Ashbranch Priority (adjust for your UI)
-local ToggleAshbranch = Tab2:NewToggle("AFK Grind Ashbranch Priority", false, function(value)
-    _G.ashbranchActive = value
-    if _G.ashbranchActive then
-        stopNearestEnemyScript() -- disable nearest enemy script
-        if ashbranchCoroutine and coroutine.status(ashbranchCoroutine) == "running" then return end
-        startAshbranchCoroutine()
-    else
-        _G.ashbranchActive = false
-    end
-end)
-local player = game.Players.LocalPlayer
 local nearestEnemyCoroutine
 _G.nearestEnemyActive = false -- global flag for cross-script communication
 local flip = true
@@ -472,6 +380,7 @@ local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false
         _G.nearestEnemyActive = false
     end
 end)
+
 
 
 
