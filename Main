@@ -308,26 +308,30 @@ local function angerAllMobs(hrp, enemyFolder)
     print("Completed: Anger all mobs")
 end
 
-local function teleportToGroundAbove(cframe)
-    local origin = cframe.Position + Vector3.new(0, 10, 0)
-    local direction = Vector3.new(0, -50, 0)
-    
-    local rayParams = RaycastParams.new()
-    rayParams.FilterDescendantsInstances = {player.Character}
-    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-    rayParams.IgnoreWater = true
+local player = game.Players.LocalPlayer
+local teleportCoroutine
+local teleportActive = false
 
-    local result = workspace:Raycast(origin, direction, rayParams)
+local function angerAllMobs(hrp, enemyFolder)
+    print("Started: Anger all mobs")
 
-    if result and result.Position then
-        -- Hit something: go 3 studs above ground
-        return CFrame.new(result.Position + Vector3.new(0, 3, 0))
-    else
-        -- Didn't hit ground: fall back to floating
-        return cframe + Vector3.new(0, 3, 0)
+    local visited = {}
+    local originalPos = hrp.CFrame
+
+    for _, obj in pairs(enemyFolder:GetDescendants()) do
+        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
+            local enemy = obj.Parent
+            if not visited[enemy] then
+                visited[enemy] = true
+                hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+                task.wait(0.1)
+            end
+        end
     end
-end
 
+    hrp.CFrame = originalPos
+    print("Completed: Anger all mobs")
+end
 
 local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     teleportActive = value
@@ -365,7 +369,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     end)
 
                     local nearestEnemyHRP = validEnemies[1]
-                    hrp.CFrame = teleportToGroundAbove(nearestEnemyHRP.CFrame)
+                    hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
 
                     if simulateFRTKeys then
                         pcall(simulateFRTKeys)
@@ -391,10 +395,6 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         coroutine.resume(teleportCoroutine)
     end
 end)
-
-
-
-
 
 -- Input
 local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false, function(val)
