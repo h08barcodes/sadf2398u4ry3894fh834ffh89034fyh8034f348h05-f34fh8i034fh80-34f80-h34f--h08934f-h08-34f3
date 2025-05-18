@@ -312,15 +312,16 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                         end
                     end
 
-                    if #validEnemies > 0 then
-                        lastFoundEnemyTime = tick()
+                    local hasEnemies = #validEnemies > 0
+
+                    if hasEnemies then
+                        lastFoundEnemyTime = tick() -- Only update when actual enemies exist
 
                         table.sort(validEnemies, function(a, b)
                             return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                         end)
 
                         local nearestEnemyHRP = validEnemies[1]
-
                         local offset = alternateOffset and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
                         alternateOffset = not alternateOffset
                         hrp.CFrame = nearestEnemyHRP.CFrame + offset
@@ -334,12 +335,14 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                             pcall(simulateFRTKeys)
                         end
                     else
+                        -- No valid enemies found recently
                         if tick() - lastFoundEnemyTime >= 1.5 then
                             lastFoundEnemyTime = tick()
                             angerAllMobs(hrp, enemyFolder)
                         end
                     end
 
+                    -- Periodic anger trigger
                     if tick() - lastAngerTime >= 10 then
                         lastAngerTime = tick()
                         angerAllMobs(hrp, enemyFolder)
