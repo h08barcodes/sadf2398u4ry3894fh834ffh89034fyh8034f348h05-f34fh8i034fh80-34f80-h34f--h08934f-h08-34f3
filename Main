@@ -7,7 +7,7 @@ local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
 
-if local Players == "GLITCHINGDOGE" then
+if Players.LocalPlayer.Name == "GLITCHINGDOGE" then
     library.rank = "developer" 
 else 
     library.rank = "private"
