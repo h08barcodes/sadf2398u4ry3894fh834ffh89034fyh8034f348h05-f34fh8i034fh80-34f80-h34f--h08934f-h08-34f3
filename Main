@@ -7,13 +7,10 @@ local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
 
-local rankTable = {
-    ["GLITCHINGDOGE"] = "developer",
-    [""] = "admin",
-    [""] = "moderator",
-}
-
-library.rank = rankTable[LocalPlayer.Name]
+if local Players == "GLITCHINGDOGE" then
+    library.rank = "developer" 
+else 
+    library.rank = "private"
 
 local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.5 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
