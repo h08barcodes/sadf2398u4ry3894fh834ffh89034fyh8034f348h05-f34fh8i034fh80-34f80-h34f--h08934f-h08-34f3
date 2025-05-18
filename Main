@@ -291,9 +291,17 @@ local function isValidEnemy(enemy)
     if enemy.Name == "Defeated" then return false end
     if enemy:FindFirstChild("VoidspawnSerpentHitbox") then return false end
     local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-    if not humanoid or humanoid.Health <= 0 then return false end
+    if not humanoid or humanoid.Health <= 0 then
+        -- Allow Voidforged Gladiator even if it fails the humanoid check
+        if enemy.Name == "Voidforged Gladiator" then
+            local hrp = enemy:FindFirstChild("HumanoidRootPart")
+            return hrp ~= nil
+        end
+        return false
+    end
     return true
 end
+
 
 local function stopAshbranchScript()
     if _G.ashbranchActive then
