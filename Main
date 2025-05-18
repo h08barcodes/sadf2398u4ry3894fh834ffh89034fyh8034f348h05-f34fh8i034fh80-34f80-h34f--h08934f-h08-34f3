@@ -261,6 +261,7 @@ end
 local player = game.Players.LocalPlayer
 local teleportCoroutine
 local teleportActive = false
+local alternateOffset = true
 
 local function angerAllMobs(hrp, enemyFolder)
     print("Started: Anger all mobs")
@@ -269,42 +270,15 @@ local function angerAllMobs(hrp, enemyFolder)
     local originalPos = hrp.CFrame
 
     for _, obj in pairs(enemyFolder:GetDescendants()) do
-        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
+        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent and obj.Parent:FindFirstChild("Humanoid") then
             local enemy = obj.Parent
-            if not visited[enemy] then
+            if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
                 visited[enemy] = true
                 hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                task.wait(0.1)
+                task.wait(0.05)
             end
         end
     end
-
-    hrp.CFrame = originalPos
-    print("Completed: Anger all mobs")
-end
-
-local player = game.Players.LocalPlayer
-local teleportCoroutine
-local teleportActive = false
-local teleportToggle = true
-
-local function angerAllMobs(hrp, enemyFolder)
-    print("Started: Anger all mobs")
-
-    local visited = {}
-    local originalPos = hrp.CFrame
-
-    for _, obj in pairs(enemyFolder:GetDescendants()) do
-    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent and obj.Parent:FindFirstChild("Humanoid") then
-        local enemy = obj.Parent
-        if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
-            visited[enemy] = true
-            hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-            task.wait(0.05)
-        end
-    end
-end
-
 
     hrp.CFrame = originalPos
     print("Completed: Anger all mobs")
@@ -314,18 +288,17 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
     teleportActive = value
 
     if teleportActive then
-        if teleportCoroutine and coroutine.status(teleportCoroutine) ~= "dead" then return end
+        if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
 
         teleportCoroutine = coroutine.create(function()
-            local success, err = pcall(function()
-                local lastFoundEnemyTime = tick()
-                local lastAngerTime = tick()
+            local lastFoundEnemyTime = tick()
+            local lastAngerTime = tick()
 
-                while teleportActive do
-                    local character = player.Character or player.CharacterAdded:Wait()
-                    local hrp = character:FindFirstChild("HumanoidRootPart")
-                    if not hrp then task.wait(1) continue end
+            while teleportActive do
+                local character = player.Character or player.CharacterAdded:Wait()
+                local hrp = character:FindFirstChild("HumanoidRootPart")
 
+                if hrp then
                     local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                     local validEnemies = {}
 
@@ -348,10 +321,9 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
 
                         local nearestEnemyHRP = validEnemies[1]
 
-                        -- Alternate position: 3 studs in front and behind, always on ground
-                        local offset = teleportToggle and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
-                        teleportToggle = not teleportToggle
-                        hrp.CFrame = nearestEnemyHRP.CFrame * CFrame.new(offset)
+                        local offset = alternateOffset and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
+                        alternateOffset = not alternateOffset
+                        hrp.CFrame = nearestEnemyHRP.CFrame + offset
 
                         local humanoid = character:FindFirstChildOfClass("Humanoid")
                         if humanoid then
@@ -362,23 +334,19 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                             pcall(simulateFRTKeys)
                         end
                     else
-                        if tick() - lastFoundEnemyTime >= 1.5 then -- halved delay
+                        if tick() - lastFoundEnemyTime >= 1.5 then
                             lastFoundEnemyTime = tick()
                             angerAllMobs(hrp, enemyFolder)
                         end
                     end
 
-                    if tick() - lastAngerTime >= 10 then -- halved interval
+                    if tick() - lastAngerTime >= 10 then
                         lastAngerTime = tick()
                         angerAllMobs(hrp, enemyFolder)
                     end
-
-                    task.wait(0.05) -- faster loop
                 end
-            end)
 
-            if not success then
-                warn("AFK Grind Coroutine Error:", err)
+                task.wait(0.05)
             end
 
             teleportCoroutine = nil
@@ -387,6 +355,7 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
         coroutine.resume(teleportCoroutine)
     end
 end)
+
 
 
 
