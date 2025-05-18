@@ -14,7 +14,7 @@ local Wm = library:Watermark("Fork's arcane conquest setup | v1.1.0 | " .. libra
 
 local Notif = library:InitNotifications()
 
-for i = 1,1,-1 do 
+for i = 20,1,-1 do 
     task.wait(0.05)
     local LoadingXSX = Notif:Notify("Loading fork's arcane conquest setup", 3, "information") -- notification, alert, error, success, information
 end 
