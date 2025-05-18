@@ -14,8 +14,7 @@ local userRanks = {
     ["YourUsernameHere"] = "owner"
 }
 
-library.rank = "developer"
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.4 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.5 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
