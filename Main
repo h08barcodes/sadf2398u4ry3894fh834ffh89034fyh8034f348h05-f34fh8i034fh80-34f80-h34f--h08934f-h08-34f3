@@ -6,6 +6,7 @@ local CoreGui = game:GetService("CoreGui")
 local hookSetup = false
 local originalNamecall
 local damageBlockerToggle = false
+local runFullFarm = false
 
 library.rank = "private"
 
@@ -431,6 +432,9 @@ local ToggleNearestEnemyA = Tab2:NewToggle("AFK Grind Ashen cliffs", false, func
     end
 end)
 
+
+
+-- Replace your existing ToggleFullFarm with this version:
 local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", false, function(value)
     if value then
         if runFullFarm then return end
@@ -438,6 +442,8 @@ local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", fals
 
         coroutine.wrap(function()
             local player = game.Players.LocalPlayer
+            local teleportBehind = true
+            local lastBossCheckMinute = -1
 
             local function isTargetEnemy(enemy)
                 if not enemy:IsA("Model") then return false end
@@ -448,15 +454,14 @@ local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", fals
                 return true
             end
 
-            local function findNearestTargetEnemy()
+            local function findNearestTargetEnemy(rootPart)
                 local nearestEnemy = nil
                 local nearestDist = math.huge
-                local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
                 for _, enemy in ipairs(workspace.Enemies:GetDescendants()) do
                     if isTargetEnemy(enemy) then
                         local hrp = enemy:FindFirstChild("HumanoidRootPart")
-                        if hrp and rootPart then
+                        if hrp then
                             local dist = (rootPart.Position - hrp.Position).Magnitude
                             if dist < nearestDist then
                                 nearestDist = dist
@@ -469,68 +474,57 @@ local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", fals
                 return nearestEnemy
             end
 
-            local teleportBehind = true
-            local lastBossCheckMinute = -1
-
             while runFullFarm do
-                local time = os.date("*t")
-                local minute = time.min
-                local second = time.sec
-
-                -- Trigger only once at the start of 0 or 30 minutes
-                if (minute == 1 or minute == 31) and minute ~= lastBossCheckMinute then
-                    lastBossCheckMinute = minute
-
-                    -- Step 2: Teleport to boss pre-spawn location (now using object)
+                local success, err = pcall(function()
                     local char = player.Character or player.CharacterAdded:Wait()
                     local root = char:WaitForChild("HumanoidRootPart")
 
-                    local bossArena = workspace:WaitForChild("Town"):WaitForChild("Misc"):WaitForChild("BossArena"):WaitForChild("FlatArena")
-                    root.CFrame = CFrame.new(bossArena.Position + Vector3.new(0, 3, 0)) -- Small Y offset to avoid ground clipping
+                    local time = os.date("*t")
+                    local minute = time.min
 
-                    wait(1) -- Give time to load
+                    -- Trigger boss farm at 1 or 31 minute mark
+                    if (minute == 1 or minute == 31) and minute ~= lastBossCheckMinute then
+                        lastBossCheckMinute = minute
 
-                    -- Step 3: Wait second minute for boss to spawn
-                    wait(60)
+                        local bossArenaBase = workspace:WaitForChild("Town"):WaitForChild("Misc"):WaitForChild("BossArena")
+                        root.CFrame = CFrame.new(bossArenaBase.Position + Vector3.new(0, 3, 0))  -- Small Y offset
 
-                    -- Step 4: Wait until boss spawns and fight until 'Defeated' is found
-                    while runFullFarm do
-                        if workspace.Enemies:FindFirstChild("Defeated") then
-                            break -- Boss defeated
-                        end
+                        wait(45) -- Wait a full minute for boss spawn
 
-                        local boss = workspace.Enemies:FindFirstChild("Ashbranch")
-                        if boss and boss:FindFirstChild("HumanoidRootPart") then
-                            local hrp = boss.HumanoidRootPart
-                            root.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0), hrp.Position)
-                            simulateFRTKeys()
-                        end
+                        while runFullFarm do
+                            if workspace.Enemies:FindFirstChild("Defeated") then
+                                break -- Boss defeated
+                            end
 
-                        wait(0.5)
-                    end
-                else
-                    -- Regular farming loop
-                    local char = player.Character or player.CharacterAdded:Wait()
-                    local root = char:WaitForChild("HumanoidRootPart")
-
-                    local enemy = findNearestTargetEnemy()
-                    if enemy then
-                        local hrp = enemy:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            local lookVector = hrp.CFrame.LookVector
-                            local offset = teleportBehind and (-lookVector * 3) or (lookVector * 3)
-                            teleportBehind = not teleportBehind
-
-                            root.CFrame = CFrame.new(hrp.Position + offset + Vector3.new(0, 3, 0), hrp.Position)
-                            simulateFRTKeys()
-                            wait(0.05)
-                        else
-                            wait(0.25)
+                            local boss = workspace.Enemies:FindFirstChild("Ashbranch")
+                            if boss and boss:FindFirstChild("HumanoidRootPart") then
+                                local hrp = boss.HumanoidRootPart
+                                root.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0), hrp.Position)
+                                simulateFRTKeys()
+                            end
+                            wait(0.5)
                         end
                     else
-                        wait(0.25)
+                        -- Regular enemy farming
+                        local enemy = findNearestTargetEnemy(root)
+                        if enemy then
+                            local hrp = enemy:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                local offset = teleportBehind and (-hrp.CFrame.LookVector * 3) or (hrp.CFrame.LookVector * 3)
+                                teleportBehind = not teleportBehind
+                                root.CFrame = CFrame.new(hrp.Position + offset + Vector3.new(0, 3, 0), hrp.Position)
+                                simulateFRTKeys()
+                            end
+                        end
+                        wait(0.05)
                     end
+                end)
+
+                if not success then
+                    warn("FullFarm Error: ", err)
                 end
+
+                wait(0.1) -- Prevent runaway loops in case of errors
             end
         end)()
     else
