@@ -261,7 +261,7 @@ end
 local runLoop = false
 local loopCoroutine = nil
 
-local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Dungeon", true, function(value)
     if value then
         if runLoop then return end
         runLoop = true
