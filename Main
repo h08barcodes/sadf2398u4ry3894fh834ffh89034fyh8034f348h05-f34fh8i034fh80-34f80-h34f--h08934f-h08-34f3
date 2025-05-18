@@ -262,31 +262,7 @@ local player = game.Players.LocalPlayer
 local ashbranchCoroutine
 local flip = true
 
--- Use global flag for active state to sync with other script
-_G.ashbranchActive = false
-
-local function angerAllMobs(hrp, enemyFolder)
-    print("Started: Anger all mobs")
-    local visited = {}
-    local originalPos = hrp.CFrame
-
-    for _, obj in pairs(enemyFolder:GetDescendants()) do
-        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
-            local enemy = obj:FindFirstAncestorOfClass("Model")
-            if enemy and not visited[enemy] and not enemy:FindFirstChild("VoidspawnSerpentHitbox") then
-                local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                if humanoid and humanoid.Health > 0 then
-                    visited[enemy] = true
-                    hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                    task.wait(0.05)
-                end
-            end
-        end
-    end
-
-    hrp.CFrame = originalPos
-    print("Completed: Anger all mobs")
-end
+_G.ashbranchActive = false -- global flag to sync with other script
 
 local function isValidEnemy(enemy)
     if not enemy then return false end
@@ -305,8 +281,6 @@ end
 
 local function startAshbranchCoroutine()
     ashbranchCoroutine = coroutine.create(function()
-        local lastAngerTime = tick()
-
         while _G.ashbranchActive do
             local character = player.Character
             if not character or not character.Parent then
@@ -338,11 +312,6 @@ local function startAshbranchCoroutine()
                 else
                     task.wait(0.5)
                 end
-
-                if tick() - lastAngerTime >= 10 then
-                    lastAngerTime = tick()
-                    angerAllMobs(hrp, enemyFolder)
-                end
             end
 
             task.wait(0.05)
@@ -354,23 +323,20 @@ local function startAshbranchCoroutine()
     coroutine.resume(ashbranchCoroutine)
 end
 
--- GUI Toggle for Ashbranch Priority (adjust as needed for your UI framework)
+-- GUI Toggle for Ashbranch Priority (adjust for your UI)
 local ToggleAshbranch = Tab2:NewToggle("AFK Grind Ashbranch Priority", false, function(value)
     _G.ashbranchActive = value
     if _G.ashbranchActive then
-        stopNearestEnemyScript() -- Disable nearest enemy script
-
+        stopNearestEnemyScript() -- disable nearest enemy script
         if ashbranchCoroutine and coroutine.status(ashbranchCoroutine) == "running" then return end
         startAshbranchCoroutine()
     else
         _G.ashbranchActive = false
     end
 end)
-
-
 local player = game.Players.LocalPlayer
 local nearestEnemyCoroutine
-_G.nearestEnemyActive = false -- global flag to allow cross-script communication
+_G.nearestEnemyActive = false -- global flag for cross-script communication
 local flip = true
 
 local function angerAllMobs(hrp, enemyFolder)
@@ -406,7 +372,6 @@ local function isValidEnemy(enemy)
 end
 
 local function stopAshbranchScript()
-    -- This sets global flag for ashbranch script to disable itself
     if _G.ashbranchActive then
         _G.ashbranchActive = false
     end
@@ -481,11 +446,10 @@ local function startNearestEnemyCoroutine()
     coroutine.resume(nearestEnemyCoroutine)
 end
 
--- Your GUI toggle for Nearest Alive Enemy
+-- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
 local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     if value then
-        stopAshbranchScript() -- disable ashbranch priority script if enabled
-
+        stopAshbranchScript() -- disable ashbranch script if enabled
         if _G.nearestEnemyActive then return end
         startNearestEnemyCoroutine()
     else
