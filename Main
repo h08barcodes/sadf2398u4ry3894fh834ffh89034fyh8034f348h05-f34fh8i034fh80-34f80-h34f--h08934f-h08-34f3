@@ -258,32 +258,93 @@ local function simulateFRTKeys()
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
 
-local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
-    print("Toggle changed:", value)  -- Check toggle triggers
+local player = game.Players.LocalPlayer
+local teleportCoroutine
+local teleportActive = false
 
-    local teleportActive = value
-    local teleportCoroutine
+local function angerAllMobs(hrp, enemyFolder)
+    print("Started: Anger all mobs")
+
+    local visited = {}
+    local originalPos = hrp.CFrame
+
+    for _, obj in pairs(enemyFolder:GetDescendants()) do
+        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent:FindFirstChild("Humanoid") then
+            local enemy = obj.Parent
+            if not visited[enemy] then
+                visited[enemy] = true
+                hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+                task.wait(0.1)
+            end
+        end
+    end
+
+    hrp.CFrame = originalPos
+    print("Completed: Anger all mobs")
+end
+
+local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
+    teleportActive = value
 
     if teleportActive then
-        print("Starting teleport coroutine")
         if teleportCoroutine and coroutine.status(teleportCoroutine) == "running" then return end
 
         teleportCoroutine = coroutine.create(function()
-            print("Coroutine started")
+            local lastFoundEnemyTime = tick()
+            local lastAngerTime = tick()
+
             while teleportActive do
-                print("Inside loop")
-                task.wait(1)
+                local character = player.Character or player.CharacterAdded:Wait()
+                local hrp = character:FindFirstChild("HumanoidRootPart")
+                if not hrp then task.wait(1) continue end
+
+                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
+                local validEnemies = {}
+
+                for _, enemy in pairs(enemyFolder:GetChildren()) do
+                    if enemy:IsA("Model") and enemy.Name ~= "Defeated" then
+                        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                        local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
+                        if humanoid and humanoid.Health > 0 and enemyHRP then
+                            table.insert(validEnemies, enemyHRP)
+                        end
+                    end
+                end
+
+                if #validEnemies > 0 then
+                    lastFoundEnemyTime = tick()
+
+                    table.sort(validEnemies, function(a, b)
+                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
+                    end)
+
+                    local nearestEnemyHRP = validEnemies[1]
+                    hrp.CFrame = nearestEnemyHRP.CFrame + Vector3.new(0, 3, 0)
+
+                    if simulateFRTKeys then
+                        pcall(simulateFRTKeys)
+                    end
+                else
+                    if tick() - lastFoundEnemyTime >= 3 then
+                        lastFoundEnemyTime = tick()
+                        angerAllMobs(hrp, enemyFolder)
+                    end
+                end
+
+                if tick() - lastAngerTime >= 20 then
+                    lastAngerTime = tick()
+                    angerAllMobs(hrp, enemyFolder)
+                end
+
+                task.wait(0.1)
             end
-            print("Coroutine ended")
+
+            teleportCoroutine = nil
         end)
 
         coroutine.resume(teleportCoroutine)
-    else
-        print("Toggle off")
-        teleportCoroutine = nil
     end
 end)
-
 
 
 
