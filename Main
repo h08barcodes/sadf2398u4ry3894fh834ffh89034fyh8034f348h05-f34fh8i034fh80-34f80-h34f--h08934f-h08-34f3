@@ -480,16 +480,16 @@ local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", fals
                 local second = time.sec
 
                 -- Trigger only once at the start of 0 or 30 minutes
-                if (minute == 0 or minute == 30) and minute ~= lastBossCheckMinute then
+                if (minute == 1 or minute == 31) and minute ~= lastBossCheckMinute then
                     lastBossCheckMinute = minute
 
-                    -- Step 1: Wait 1 minute
-                    wait(60)
-
-                    -- Step 2: Teleport to boss pre-spawn location
+                    -- Step 2: Teleport to boss pre-spawn location (now using object)
                     local char = player.Character or player.CharacterAdded:Wait()
                     local root = char:WaitForChild("HumanoidRootPart")
-                    root.CFrame = CFrame.new(-365, 12.792820930480957, 110)
+
+                    local bossArena = workspace:WaitForChild("Town"):WaitForChild("Misc"):WaitForChild("BossArena"):WaitForChild("FlatArena")
+                    root.CFrame = CFrame.new(bossArena.Position + Vector3.new(0, 3, 0)) -- Small Y offset to avoid ground clipping
+
                     wait(1) -- Give time to load
 
                     -- Step 3: Wait second minute for boss to spawn
