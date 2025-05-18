@@ -257,10 +257,9 @@ local function simulateFRTKeys()
     wait(0.1)
     SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
 end
-
 local player = game.Players.LocalPlayer
 local nearestEnemyCoroutine
-_G.nearestEnemyActive = false -- global flag for cross-script communication
+_G.nearestEnemyActive = false
 local flip = true
 
 local function angerAllMobs(hrp, enemyFolder)
@@ -273,7 +272,7 @@ local function angerAllMobs(hrp, enemyFolder)
             local enemy = obj:FindFirstAncestorOfClass("Model")
             if enemy and not visited[enemy] and not enemy:FindFirstChild("VoidspawnSerpentHitbox") then
                 local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                if humanoid and humanoid.Health > 0 then
+                if (humanoid and humanoid.Health > 0) or enemy.Name == "Voidforged Gladiator" then
                     visited[enemy] = true
                     hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
                     task.wait(0.05)
@@ -290,18 +289,19 @@ local function isValidEnemy(enemy)
     if not enemy then return false end
     if enemy.Name == "Defeated" then return false end
     if enemy:FindFirstChild("VoidspawnSerpentHitbox") then return false end
-    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-    if not humanoid or humanoid.Health <= 0 then
-        -- Allow Voidforged Gladiator even if it fails the humanoid check
-        if enemy.Name == "Voidforged Gladiator" then
-            local hrp = enemy:FindFirstChild("HumanoidRootPart")
-            return hrp ~= nil
-        end
-        return false
-    end
-    return true
-end
 
+    local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health > 0 then
+        return true
+    end
+
+    -- Allow "Voidforged Gladiator" only if it has no VoidspawnSerpentHitbox and has a HumanoidRootPart
+    if enemy.Name == "Voidforged Gladiator" and enemy:FindFirstChild("HumanoidRootPart") then
+        return true
+    end
+
+    return false
+end
 
 local function stopAshbranchScript()
     if _G.ashbranchActive then
@@ -309,7 +309,7 @@ local function stopAshbranchScript()
     end
 end
 
-local function startNearestEnemyCoroutine()
+local function startNearestEnemyCoroutine(enablePeriodicAnger)
     _G.nearestEnemyActive = true
     nearestEnemyCoroutine = coroutine.create(function()
         local lastFoundEnemyTime = tick()
@@ -363,7 +363,7 @@ local function startNearestEnemyCoroutine()
                     end
                 end
 
-                if tick() - lastAngerTime >= 10 then
+                if enablePeriodicAnger and tick() - lastAngerTime >= 10 then
                     lastAngerTime = tick()
                     angerAllMobs(hrp, enemyFolder)
                 end
@@ -378,96 +378,25 @@ local function startNearestEnemyCoroutine()
     coroutine.resume(nearestEnemyCoroutine)
 end
 
-local function startNearestEnemyCoroutinew()
-    _G.nearestEnemyActive = true
-    nearestEnemyCoroutine = coroutine.create(function()
-        local lastFoundEnemyTime = tick()
-        local lastAngerTime = tick()
-
-        while _G.nearestEnemyActive do
-            local character = player.Character
-            if not character or not character.Parent then
-                character = player.CharacterAdded:Wait()
-            end
-
-            local hrp = character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
-                local validEnemies = {}
-
-                for _, obj in pairs(enemyFolder:GetDescendants()) do
-                    if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
-                        local enemy = obj:FindFirstAncestorOfClass("Model")
-                        if isValidEnemy(enemy) then
-                            table.insert(validEnemies, obj)
-                        end
-                    end
-                end
-
-                if #validEnemies > 0 then
-                    lastFoundEnemyTime = tick()
-
-                    table.sort(validEnemies, function(a, b)
-                        return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
-                    end)
-
-                    local nearest = validEnemies[1]
-                    local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
-                    flip = not flip
-
-                    hrp.CFrame = nearest.CFrame + offset
-
-                    local humanoid = character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
-                    end
-
-                    if simulateFRTKeys then
-                        pcall(simulateFRTKeys)
-                    end
-                else
-                    if tick() - lastFoundEnemyTime >= 1.5 then
-                        lastFoundEnemyTime = tick()
-                        angerAllMobs(hrp, enemyFolder)
-                    end
-                end
-
-                if tick() - lastAngerTime >= 10000 then
-                    lastAngerTime = tick()
-                    angerAllMobs(hrp, enemyFolder)
-                end
-            end
-
-            task.wait(0.05)
-        end
-
-        nearestEnemyCoroutine = nil
-    end)
-
-    coroutine.resume(nearestEnemyCoroutine)
-end
--- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
+-- GUI Toggle for AFK Grind with Anger
 local ToggleNearestEnemy = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(value)
     if value then
         if _G.nearestEnemyActive then return end
-        startNearestEnemyCoroutine()
+        startNearestEnemyCoroutine(true)
     else
         _G.nearestEnemyActive = false
     end
 end)
 
--- GUI Toggle for Nearest Alive Enemy (adjust for your UI)
+-- GUI Toggle for AFK Grind without Anger
 local ToggleNearestEnemyW = Tab2:NewToggle("AFK Grind Nearest Alive Enemy No Anger", false, function(value)
     if value then
         if _G.nearestEnemyActive then return end
-        startNearestEnemyCoroutinew()
+        startNearestEnemyCoroutine(false)
     else
         _G.nearestEnemyActive = false
     end
 end)
-
-
-
 
 
 -- Input
