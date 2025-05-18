@@ -261,21 +261,22 @@ end
 local player = game.Players.LocalPlayer
 local teleportCoroutine
 local teleportActive = false
-local alternateOffset = true
+local flip = true
 
 local function angerAllMobs(hrp, enemyFolder)
     print("Started: Anger all mobs")
-
     local visited = {}
     local originalPos = hrp.CFrame
 
     for _, obj in pairs(enemyFolder:GetDescendants()) do
-        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" and obj.Parent and obj.Parent:FindFirstChild("Humanoid") then
-            local enemy = obj.Parent
-            if enemy.Name ~= "VoidspawnSerpentHitbox" and not visited[enemy] then
-                visited[enemy] = true
-                hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
-                task.wait(0.05)
+        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+            local enemy = obj:FindFirstAncestorOfClass("Model")
+            if enemy and not visited[enemy] and not enemy:FindFirstDescendant("VoidspawnSerpentHitbox") then
+                if enemy:FindFirstChildOfClass("Humanoid") then
+                    visited[enemy] = true
+                    hrp.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+                    task.wait(0.05) -- faster
+                end
             end
         end
     end
@@ -302,29 +303,30 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                     local enemyFolder = workspace:FindFirstChild("Enemies") or workspace
                     local validEnemies = {}
 
-                    for _, enemy in pairs(enemyFolder:GetChildren()) do
-                        if enemy:IsA("Model") and enemy.Name ~= "Defeated" and enemy.Name ~= "VoidspawnSerpentHitbox" then
-                            local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-                            local enemyHRP = enemy:FindFirstChild("HumanoidRootPart", true)
-                            if humanoid and humanoid.Health > 0 and enemyHRP then
-                                table.insert(validEnemies, enemyHRP)
+                    for _, obj in pairs(enemyFolder:GetDescendants()) do
+                        if obj:IsA("Part") and obj.Name == "HumanoidRootPart" then
+                            local enemy = obj:FindFirstAncestorOfClass("Model")
+                            if enemy and enemy.Name ~= "Defeated" and not enemy:FindFirstDescendant("VoidspawnSerpentHitbox") then
+                                local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+                                if humanoid and humanoid.Health > 0 then
+                                    table.insert(validEnemies, obj)
+                                end
                             end
                         end
                     end
 
-                    local hasEnemies = #validEnemies > 0
-
-                    if hasEnemies then
-                        lastFoundEnemyTime = tick() -- Only update when actual enemies exist
+                    if #validEnemies > 0 then
+                        lastFoundEnemyTime = tick()
 
                         table.sort(validEnemies, function(a, b)
                             return (a.Position - hrp.Position).Magnitude < (b.Position - hrp.Position).Magnitude
                         end)
 
-                        local nearestEnemyHRP = validEnemies[1]
-                        local offset = alternateOffset and Vector3.new(0, -3, -3) or Vector3.new(0, -3, 3)
-                        alternateOffset = not alternateOffset
-                        hrp.CFrame = nearestEnemyHRP.CFrame + offset
+                        local nearest = validEnemies[1]
+                        local offset = flip and Vector3.new(0, -3, 3) or Vector3.new(0, -3, -3)
+                        flip = not flip
+
+                        hrp.CFrame = nearest.CFrame + offset
 
                         local humanoid = character:FindFirstChildOfClass("Humanoid")
                         if humanoid then
@@ -335,21 +337,19 @@ local Toggle1 = Tab2:NewToggle("AFK Grind Nearest Alive Enemy", false, function(
                             pcall(simulateFRTKeys)
                         end
                     else
-                        -- No valid enemies found recently
                         if tick() - lastFoundEnemyTime >= 1.5 then
                             lastFoundEnemyTime = tick()
                             angerAllMobs(hrp, enemyFolder)
                         end
                     end
 
-                    -- Periodic anger trigger
                     if tick() - lastAngerTime >= 10 then
                         lastAngerTime = tick()
                         angerAllMobs(hrp, enemyFolder)
                     end
                 end
 
-                task.wait(0.05)
+                task.wait(0.05) -- faster loop
             end
 
             teleportCoroutine = nil
