@@ -1,0 +1,118 @@
+-- Auto Executor Script for Custom Game
+print("Starting")
+wait(1)
+-- Load Infinite Yield
+loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
+wait(1)
+-- Run Anti-Client Kick
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Enable Damage Blocker
+print("DAMAGEBLOCKERSTART")
+local damageBlockerToggle = true
+local hookSetup = false
+local originalNamecall
+wait(1)
+if hookmetamethod and not hookSetup then
+    hookSetup = true
+    local mt = getrawmetatable(game)
+    originalNamecall = mt.__namecall
+    setreadonly(mt, false)
+
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "FireServer" and self.Name == "Damage" and damageBlockerToggle then
+            print("Damage Blocker: Blocked FireServer call to 'Damage'")
+            return
+        end
+        return originalNamecall(self, ...)
+    end)
+
+    setreadonly(mt, true)
+end
+wait(1)
+print("DAMAGEBLOCKEREND")
+-- Wait 15 seconds then start dungeon
+wait(5)
+print("autofarm")
+game:GetService("ReplicatedStorage"):WaitForChild("Start"):FireServer()
+
+
+-- Start Dungeon Autofarm
+local runLoop = true
+coroutine.wrap(function()
+    local player = game.Players.LocalPlayer
+    local lastEnemyTime = tick()
+
+    while runLoop do
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local enemiesFolder = workspace:WaitForChild("Enemies")
+
+        local excludedNames = {
+            "Total", "EnemiesRemaining", "Defeated", "VoidspawnSerpentHitbox"
+        }
+
+        local function isValidEnemy(enemy)
+            if not enemy:IsA("Model") then return false end
+            if table.find(excludedNames, enemy.Name) then return false end
+            if not enemy:FindFirstChild("HumanoidRootPart") then return false end
+            local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.Health <= 0 then return false end
+            return true
+        end
+
+        local function findNearestEnemy()
+            local nearestEnemy = nil
+            local nearestDist = math.huge
+            for _, enemy in pairs(enemiesFolder:GetChildren()) do
+                if isValidEnemy(enemy) then
+                    local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                    if enemyHRP then
+                        local dist = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
+                        if dist < nearestDist then
+                            nearestDist = dist
+                            nearestEnemy = enemy
+                        end
+                    end
+                end
+            end
+            return nearestEnemy
+        end
+
+        local teleportBehind = true
+
+        while runLoop do
+            local enemy = findNearestEnemy()
+            if enemy then
+                lastEnemyTime = tick()
+
+                local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                if enemyHRP then
+                    local offset = teleportBehind and (-enemyHRP.CFrame.LookVector * 3) or (enemyHRP.CFrame.LookVector * 3)
+                    teleportBehind = not teleportBehind
+                    humanoidRootPart.CFrame = CFrame.new(enemyHRP.Position + offset + Vector3.new(0, -3, 0), enemyHRP.Position)
+
+                    local SpellEvent = game:GetService("ReplicatedStorage"):WaitForChild("Spell")
+                    local vector = Vector3
+                    SpellEvent:FireServer("Spell1", vector.new(0, 145.974, 0), vector.zero, 0)
+                    wait(0.01)
+                    SpellEvent:FireServer("Spell2", vector.new(0, 145.974, 0), vector.zero, 0)
+                    wait(0.01)
+                    SpellEvent:FireServer("Spell3", vector.new(0, 145.974, 0), vector.zero, 0)
+                    wait(0.1)
+                    SpellEvent:FireServer("Spell4", vector.new(0, 145.974, 0), vector.zero, 0)
+                    wait(0.15)
+                end
+            else
+                if tick() - lastEnemyTime > 60 then
+                    warn("No valid enemy found for 60 seconds. Resetting character...")
+                    player:LoadCharacter()
+                    lastEnemyTime = tick()
+                end
+                wait(0.25)
+            end
+        end
+    end
+end)()
