@@ -139,7 +139,7 @@ local Button1 = Tab1:NewButton("Anger all mobs", function()
     tpTo(originalPos)
     print("Completed: Anger all mobs")
 end)
-local Button2 = Tab1:NewButton("Anticlientkick (requires hookmetamethod)", function()
+local Button2 = Tab1:NewButton("Anticlientkick", function()
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
 
