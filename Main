@@ -89,7 +89,7 @@ local teleportLocations = {
     "Goblin ruins", 
     "Ashen wastes", 
     "Elemental caverns", 
-    "Blighted ruins (boss) NOT WORKING" 
+    "Blighted ruins (boss) " 
 }
 
 for i, label in ipairs(teleportLocations) do
@@ -435,7 +435,7 @@ end)
 
 
 -- Replace your existing ToggleFullFarm with this version:
-local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS)", false, function(value)
+local ToggleFullFarm = Tab2:NewToggle("Ashen Cliffs Full Farm (WITH BOSS) NOT WORKING", false, function(value)
     if value then
         if runFullFarm then return end
         runFullFarm = true
@@ -538,7 +538,7 @@ local Textbox1 = Tab1:NewTextbox("Speed", "", "100", "all", "small", true, false
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(val)
     print("Set player speed:" .. val)
 end)
-local Textbox1 = Tab2:NewTextbox("Dupe items", "ID:", "1", "all", "small", true, false, function(val)
+local Textbox1 = Tab2:NewTextbox("Dupe items VISUAL", "ID:", "1", "all", "small", true, false, function(val)
     local index = tonumber(val) -- Convert string input to number
     if not index then
         warn("Invalid input. Please enter a number.")
