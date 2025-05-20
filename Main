@@ -89,7 +89,7 @@ local teleportLocations = {
     "Goblin ruins", 
     "Ashen wastes", 
     "Elemental caverns", 
-    "Blighted ruins (boss)" 
+    "Blighted ruins (boss) NOT WORKING" 
 }
 
 for i, label in ipairs(teleportLocations) do
