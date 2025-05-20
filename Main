@@ -10,16 +10,16 @@ local runFullFarm = false
 
 library.rank = "private"
 
-local Wm = library:Watermark("Fork's arcane conquest setup | v1.3.6 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local Wm = library:Watermark("sigma's arcane conquest setup | v1.3.6 | " .. library:GetUsername() .. " | rank: " .. library.rank)
 
 local Notif = library:InitNotifications()
 
 for i = 21,1,-1 do 
     task.wait(0.05)
-    local LoadingXSX = Notif:Notify("Loading fork's arcane conquest setup", 3, "information") -- notification, alert, error, success, information
+    local LoadingXSX = Notif:Notify("Loading sigma's arcane conquest setup", 3, "information") -- notification, alert, error, success, information
 end 
 
-library.title = "Fork's arcane conquest setup"
+library.title = "sigma's arcane conquest setup"
 
 local function getPlayerNames()
     local playerNames = {}
