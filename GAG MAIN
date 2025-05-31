@@ -94,13 +94,21 @@ game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Bu
 
 end)
 
-local Selector2 = Tab3:NewSelector("Plant seed in same area", "Plant seed name", {"Carrot", "Strawberry", "Blueberry", "Orange Tulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk", }, function(d)
+local Selector2 = Tab3:NewSelector("Plant seed in same area (priv or it breaks)", "Plant seed name", {"Carrot", "Strawberry", "Blueberry", "Orange Tulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk", }, function(d)
 local args = {
-	vector.create(-249.17840576171875, 0.13552704453468323, -86.28472900390625),
+	vector.create(10.515403747558594, 0.13552704453468323, -81.44770050048828),
 	d
 }
 game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
 
+end)
+
+local Selector3 = Tab3:NewSelector("Plant seed in same area alt(priv or it breaks)", "Plant seed name", {"Carrot", "Strawberry", "Blueberry", "Orange Tulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk", }, function(d)
+local args = {
+	vector.create(10.062049865722656, 0.13552704453468323, -97.54318237304688),
+	d
+}
+game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
 end)
 
 local Label1t4 = Tab4:NewSection("@errorgeorge on discord, very sigma ik")
