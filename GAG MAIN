@@ -29,7 +29,8 @@ local Tab3 = Init:NewTab("Plant seed")
 local Tab4 = Init:NewTab("Credits")
 
 local Section1t1 = Tab1:NewSection("Main stuff")
-local Section1t4 = Tab4:NewSection("@errorgeorge on discord")
+local Label1t4 = tab4:NewSection("@errorgeorge on discord, very sigma ik")
+local Label2t4 = tab4:NewSection("Calm down ladies")
 
 local Button1 = Tab1:NewButton("Sell inv", function()
     game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
