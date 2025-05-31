@@ -104,17 +104,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Pl
 
 end)
 
-
-
-
-
-
-
-
-
-
-
-
+local Button1t4 = Tab4:NewButton("Fork's script hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Fork's%20Scripts%20Hub"))()
+end)
 
 
 local FinishedLoading = Notif:Notify("Loaded", 4, "success")
