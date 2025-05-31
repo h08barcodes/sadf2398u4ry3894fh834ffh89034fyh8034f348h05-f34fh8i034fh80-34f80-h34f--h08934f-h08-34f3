@@ -31,7 +31,39 @@ local Tab4 = Init:NewTab("Credits")
 local Section1t1 = Tab1:NewSection("Main stuff")
 
 local Button1 = Tab1:NewButton("Sell inv", function()
-    game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local hrp = character:WaitForChild("HumanoidRootPart")
+
+	-- Save original position
+	local originalCFrame = hrp.CFrame
+
+	-- Target position
+	local spoofPosition = Vector3.new(63.45766830444336, 2.499606132507324, 10.281858444213867)
+
+	-- Move to target
+	hrp.CFrame = CFrame.new(spoofPosition)
+	print("✅ Moved to sell location.")
+
+	task.wait(0.12)
+
+	-- Fire sell event
+	local sellRemote = ReplicatedStorage:WaitForChild("GameEvents"):FindFirstChild("Sell_Inventory")
+	if sellRemote then
+		sellRemote:FireServer()
+		print("✅ Sell_Inventory fired.")
+	else
+		warn("❌ Sell_Inventory remote not found.")
+	end
+
+	task.wait(0.01)
+
+	-- Return to original position
+	hrp.CFrame = originalCFrame
+	print("✅ Returned to original position.")
+
 end)
 
 local Button2 = Tab1:NewButton("Submit all lunar", function()
