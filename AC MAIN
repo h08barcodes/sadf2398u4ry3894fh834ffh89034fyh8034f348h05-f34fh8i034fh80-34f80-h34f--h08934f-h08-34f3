@@ -81,7 +81,7 @@ local Init = library:Init()
 local Tab1 = Init:NewTab("Main")
 local Tab2 = Init:NewTab("Fun stuff")
 -- New Teleports Tab
-local Tab4 = Init:NewTab("Teleports")
+local  = Init:NewTab("Teleports")
 local SectionTele = Tab4:NewSection("Teleport Locations")
 
 local teleportLocations = {
@@ -842,8 +842,9 @@ end)
 
 
 
-
-
+local Button1t4 = Tab4:NewButton("Fork's script hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/Fork's%20Scripts%20Hub"))()
+end)
 
 local FinishedLoading = Notif:Notify("Loaded setup", 4, "success")
 
