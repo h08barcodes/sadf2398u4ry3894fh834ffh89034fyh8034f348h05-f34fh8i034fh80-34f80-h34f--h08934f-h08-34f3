@@ -1,0 +1,50 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Consistt/Ui/main/UnLeaked"))()
+
+library.rank = "developer"
+local Wm = library:Watermark("Fork's scripts Hub | v1.0 | " .. library:GetUsername() .. " | rank: " .. library.rank)
+local FpsWm = Wm:AddWatermark("fps: " .. library.fps)
+coroutine.wrap(function()
+    while wait(.75) do
+        FpsWm:Text("fps: " .. library.fps)
+    end
+end)()
+
+local Notif = library:InitNotifications()
+
+for i = 20,0,-1 do 
+    task.wait(0.05)
+    Notif:Notify("Loading Fork's scripts Hub", 3, "information")
+end 
+
+library.title = "Fork's scripts Hub"
+library:Introduction()
+wait(1)
+local Init = library:Init()
+
+-- First Tab: Private Scripts
+local Tab1 = Init:NewTab("Private Scripts")
+local Section1 = Tab1:NewSection("Private Scripts")
+
+Tab1:NewButton("Fork's Arcane conquest setup", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/AC%20MAIN"))()
+end)
+
+Tab1:NewButton("Fork's Grow a garden setup", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/h08barcodes/sadf2398u4ry3894fh834ffh89034fyh8034f348h05-f34fh8i034fh80-34f80-h34f--h08934f-h08-34f3/refs/heads/main/GAG%20MAIN"))()
+end)
+
+-- Second Tab: Public Scripts
+local Tab2 = Init:NewTab("Public Scripts")
+local Section2 = Tab2:NewSection("Public Scripts")
+
+Tab2:NewButton("Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
+end)
+
+-- Third Tab: Credits
+local Tab3 = Init:NewTab("Credits")
+local Section3 = Tab3:NewSection("Credits")
+
+Tab3:NewLabel("ALL CREDITS TO @ERRORGEORGE ON DISCORD")
+
+local FinishedLoading = Notif:Notify("Loaded Fork's scripts", 4, "success")
