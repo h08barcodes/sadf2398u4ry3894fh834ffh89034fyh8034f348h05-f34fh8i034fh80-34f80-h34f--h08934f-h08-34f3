@@ -110,4 +110,4 @@ local Button1t4 = Tab4:NewButton("Fork's script hub", function()
 end)
 
 
-local FinishedLoading = Notif:Notify("Loaded", 4, "success")
+local FinishedLoading = Notif:Notify("Loaded Fork's grow a garden setup", 4, "success")
