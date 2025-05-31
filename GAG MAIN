@@ -12,7 +12,7 @@ end)()
 
 local Notif = library:InitNotifications()
 
-for i = 0,0,-1 do 
+for i = 20,0,-1 do 
     task.wait(0.05)
     local LoadingXSX = Notif:Notify("Loading Fork's grow a garden setup", 3, "information") -- notification, alert, error, success, information
 end 
