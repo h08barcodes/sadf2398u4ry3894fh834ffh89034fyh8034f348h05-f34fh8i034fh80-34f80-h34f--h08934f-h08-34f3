@@ -41,6 +41,7 @@ end)
 local Tab3 = Init:NewTab("Credits")
 local Section3 = Tab3:NewSection("Credits")
 
-Tab3:NewLabel("ALL CREDITS TO @ERRORGEORGE ON DISCORD")
+local Label1t3 = tab3:NewSection("@errorgeorge on discord, very sigma ik")
+local Label2t3 = tab3:NewSection("Calm down ladies")
 
 local FinishedLoading = Notif:Notify("Loaded Fork's scripts", 4, "success")
